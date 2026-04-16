@@ -1,16 +1,67 @@
-# React + Vite
+# ShadowLearn AI - Powered Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ShadowLearn is an AI-powered educational platform designed to enhance the learning experience through intelligent search and handoff systems.
 
-Currently, two official plugins are available:
+## 🚀 Project Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+This project is organized into a clean `frontend` and `backend` structure for professional development and easy deployment.
 
-## React Compiler
+```bash
+shadowlearn/
+├── backend/            # Express.js Server & AI Integration
+│   ├── controllers/    # Request handlers
+│   ├── models/         # MongoDB schemas
+│   ├── routes/         # API endpoints
+│   ├── server.js       # Entry point
+│   └── .env            # Backend environment variables
+└── frontend/           # React + Vite UI
+    ├── src/            # Application source code
+    ├── public/         # Static assets
+    ├── index.html      # Main entry point
+    └── .env            # Frontend environment variables
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
+- Node.js (v18+)
+- MongoDB (Local or Atlas)
+- Gemini API Key
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Backend Setup
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file based on `.env.example`.
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file and set `VITE_API_URL=http://localhost:5000`.
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## 🌐 Deployment
+
+- **Frontend**: Recommended to deploy on **Vercel** or **Netlify**. Set the `Root Directory` to `frontend`.
+- **Backend**: Recommended to deploy on **Render**, **Railway**, or **Heroku**. Set the `Root Directory` to `backend`.
+
+## 📄 License
+This project is licensed under the ISC License.
