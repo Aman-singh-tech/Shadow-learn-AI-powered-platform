@@ -46,8 +46,11 @@ const { errorHandler } = require('./middleware/errorMiddleware');
 app.use(errorHandler);
 
 // MongoDB Connection
-const defaultUri = 'mongodb+srv://aman-singh-tech:1kC24zlcNOaUenNW@cluster0.twdd1vv.mongodb.net/Shadowlearn';
-mongoose.connect(process.env.MONGODB_URI || defaultUri, {
+if (!process.env.MONGODB_URI) {
+    console.warn('WARNING: MONGODB_URI is not defined in environment variables.');
+}
+
+mongoose.connect(process.env.MONGODB_URI, {
     serverSelectionTimeoutMS: 50000, 
     socketTimeoutMS: 45000
 })
