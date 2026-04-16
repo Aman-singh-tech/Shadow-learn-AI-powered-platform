@@ -59,3 +59,11 @@ export const mockLearningModules = [
   { id: 2, name: 'Advanced CRM Mastery', steps: 12, progress: 20 },
   { id: 3, name: 'Team Collaboration Workflow', steps: 3, progress: 100 }
 ];
+
+
+
+
+
+
+
+

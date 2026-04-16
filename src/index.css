@@ -1,27 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;700;800;900&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --color-primary: #3b82f6;
-  --color-secondary: #6366f1;
-  --color-accent: #f43f5e;
-  --color-background-soft: #f9fafb;
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  background-color: #030810;
+  color: #f3f4f6;
+  color-scheme: dark;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 :root {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  background-color: #ffffff;
-  color: #111827;
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  min-width: 320px;
-  min-height: 100vh;
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #030810; }
+::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(34,211,238,0.4); }
 
-#root {
-  width: 100%;
+/* Selection */
+::selection { background: rgba(34,211,238,0.25); color: #fff; }
+
+/* Animated gradient shimmer */
+@keyframes shimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }

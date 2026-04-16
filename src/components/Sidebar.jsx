@@ -1,5 +1,6 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { 
   LayoutDashboard, 
   Video, 
@@ -9,27 +10,35 @@ import {
   Users, 
   RefreshCw, 
   BarChart3,
-  LogOut,
-  BrainCircuit
+  BrainCircuit,
+  LogOut
 } from 'lucide-react';
 
 const SidebarItem = ({ to, icon: Icon, label }) => (
   <NavLink
     to={to}
     className={({ isActive }) =>
-      `flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+      `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-300 ${
         isActive 
-          ? 'bg-blue-50 text-blue-600 font-medium' 
-          : 'text-gray-600 hover:bg-gray-100'
+          ? 'bg-blue-600/10 text-blue-400 font-bold border border-blue-500/20' 
+          : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-100'
       }`
     }
   >
     <Icon size={20} />
-    <span>{label}</span>
+    <span className="text-sm uppercase tracking-wider font-bold">{label}</span>
   </NavLink>
 );
 
 const Sidebar = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/auth');
+  };
+
   const navItems = [
     { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { to: "/workflows", icon: Video, label: "Workflows" },
@@ -42,26 +51,29 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 h-screen sticky top-0 bg-white border-r border-gray-200 p-4 flex flex-col">
-      <Link to="/" className="flex items-center gap-2 px-2 mb-8">
-        <BrainCircuit size={32} className="text-blue-600" />
-        <span className="text-xl font-bold tracking-tight">ShadowLearn</span>
+    <aside className="w-64 h-screen sticky top-0 bg-[#030712] border-r border-gray-800/50 p-6 flex flex-col shadow-2xl z-20">
+      <Link to="/" className="flex items-center gap-3 px-2 mb-10 group">
+        <div className="p-2 bg-blue-600/10 rounded-xl border border-blue-500/20 group-hover:bg-blue-600/20 transition-all">
+          <BrainCircuit size={28} className="text-blue-500" />
+        </div>
+        <span className="text-xl font-black tracking-tight text-white font-['Outfit']">ShadowLearn</span>
       </Link>
       
-      <nav className="flex-1 space-y-1">
+      <nav className="flex-1 space-y-2">
         {navItems.map((item) => (
           <SidebarItem key={item.to} {...item} />
         ))}
       </nav>
 
-      <div className="mt-auto pt-4 border-t border-gray-200">
-        <button className="flex items-center gap-3 px-4 py-2 w-full text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
-          <LogOut size={20} />
-          <span>Logout</span>
-        </button>
-      </div>
+      <button 
+        onClick={handleLogout}
+        className="mt-auto flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all duration-300 group border border-transparent hover:border-red-500/20 font-bold uppercase tracking-wider text-xs"
+      >
+        <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
+        <span>Logout</span>
+      </button>
     </aside>
   );
-};
+}
 
 export default Sidebar;

@@ -2,6 +2,12 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import DashboardLayout from './layouts/DashboardLayout';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
+// Context
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
 import Home from './pages/Home';
@@ -13,31 +19,56 @@ import AISearch from './pages/AISearch';
 import Experts from './pages/Experts';
 import Handoffs from './pages/Handoffs';
 import Insights from './pages/Insights';
+import Auth from './pages/Auth';
 
 function App() {
+  React.useEffect(() => {
+    if (typeof AOS !== 'undefined') {
+      AOS.init({
+        duration: 200,
+        once: true,
+        easing: 'ease-in-out',
+      });
+    }
+  }, []);
+
   return (
-    <BrowserRouter>
-      <Toaster position="top-right" />
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            style: {
+              background: '#111827',
+              color: '#fff',
+              border: '1px solid #374151',
+            },
+          }} 
+        />
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/auth" element={<Auth />} />
 
-        {/* Dashboard Routes with Layout */}
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/workflows" element={<Workflows />} />
-          <Route path="/solutions" element={<Solutions />} />
-          <Route path="/learning" element={<LearningModules />} />
-          <Route path="/ai-search" element={<AISearch />} />
-          <Route path="/experts" element={<Experts />} />
-          <Route path="/handoffs" element={<Handoffs />} />
-          <Route path="/insights" element={<Insights />} />
-        </Route>
+          {/* Protected Dashboard Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/workflows" element={<Workflows />} />
+              <Route path="/solutions" element={<Solutions />} />
+              <Route path="/learning" element={<LearningModules />} />
+              <Route path="/ai-search" element={<AISearch />} />
+              <Route path="/experts" element={<Experts />} />
+              <Route path="/handoffs" element={<Handoffs />} />
+              <Route path="/insights" element={<Insights />} />
+            </Route>
+          </Route>
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
