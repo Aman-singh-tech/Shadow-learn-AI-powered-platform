@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
+
 /* ─────────────────── UTILITY / DESIGN TOKENS ─────────────────── */
 // Reusable button variants (shadcn/ui pattern)
 const buttonVariants = {
@@ -872,6 +873,113 @@ const TestimonialsSection = () => {
     </section>
   );
 };
+/* ─────────────────── PRICING SECTION ─────────────────── */
+const PricingSection = () => {
+  const plans = [
+    {
+      name: "Starter",
+      price: "Free",
+      desc: "Perfect for small teams getting started",
+      features: [
+        "Up to 10 workflows",
+        "Basic AI capture",
+        "Community support",
+        "Limited analytics"
+      ],
+      highlight: false
+    },
+    {
+      name: "Pro",
+      price: "₹999/mo",
+      desc: "For growing teams scaling knowledge",
+      features: [
+        "Unlimited workflows",
+        "Advanced AI structuring",
+        "Priority support",
+        "Full analytics dashboard",
+        "Team collaboration"
+      ],
+      highlight: true
+    },
+    {
+      name: "Enterprise",
+      price: "Custom",
+      desc: "For organizations at scale",
+      features: [
+        "Unlimited everything",
+        "Dedicated AI models",
+        "SSO / SAML",
+        "Security & compliance",
+        "Dedicated support"
+      ],
+      highlight: false
+    }
+  ];
+
+  return (
+    <section id="pricing" className="py-28 px-6 relative" style={{ background: 'linear-gradient(180deg, #030810 0%, #040c1a 100%)' }}>
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Heading */}
+        <div className="text-center mb-20">
+          <Badge className="mb-6">Pricing</Badge>
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            Simple,{' '}
+            <GradientText>
+              Transparent Pricing
+            </GradientText>
+          </h2>
+          <p className="text-gray-500 max-w-xl mx-auto">
+            Choose the plan that scales with your team's knowledge.
+          </p>
+        </div>
+
+        {/* Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {plans.map((plan, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+            >
+              <GlassCard className={`p-7 h-full flex flex-col ${plan.highlight ? 'border-cyan-400/30 shadow-[0_0_40px_rgba(34,211,238,0.15)]' : ''}`}>
+                
+                {/* Plan Name */}
+                <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
+                <p className="text-gray-500 text-sm mb-6">{plan.desc}</p>
+
+                {/* Price */}
+                <div className="mb-6">
+                  <span className="text-4xl font-black text-white">{plan.price}</span>
+                </div>
+
+                {/* Features */}
+                <div className="space-y-3 mb-8">
+                  {plan.features.map((f, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-sm text-gray-400">
+                      <CheckCircle size={14} className="text-cyan-400" />
+                      {f}
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA */}
+                <Link
+                  to="/dashboard"
+                  className={buttonVariants.primary + " mt-auto justify-center"}
+                >
+                  Get Started
+                </Link>
+              </GlassCard>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
 
 /* ─────────────────── CTA SECTION ─────────────────── */
 const CTASection = () => (
@@ -1002,6 +1110,7 @@ const Home = () => {
         <FeaturesSection />
         <ProtocolSection />
         <TestimonialsSection />
+        <PricingSection /> 
         <CTASection />
       </main>
       <Footer />
