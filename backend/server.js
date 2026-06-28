@@ -45,11 +45,6 @@ app.get('/api/health', (req, res) => {
 const { errorHandler } = require('./middleware/errorMiddleware');
 app.use(errorHandler);
 
-// MongoDB Connection
-if (!process.env.MONGODB_URI) {
-    console.warn('WARNING: MONGODB_URI is not defined in environment variables.');
-}
-
 mongoose.connect(process.env.MONGODB_URI, {
     serverSelectionTimeoutMS: 50000, 
     socketTimeoutMS: 45000
