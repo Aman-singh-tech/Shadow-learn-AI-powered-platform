@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button } from '../components/ui';
+import NewWorkflowModal from '../components/NewWorkflowModal';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import { 
@@ -77,6 +78,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -127,6 +129,8 @@ const Dashboard = () => {
   }
 
   return (
+        <>
+
     <div className="space-y-8 pb-10 font-['Inter'] relative">
        {/* Ambient glow */}
        <div className="absolute top-[-5%] left-[-5%] w-[30%] h-[30%] bg-blue-600/5 blur-[100px] rounded-full pointer-events-none" />
@@ -144,7 +148,7 @@ const Dashboard = () => {
         </div>
         
         <div className="flex gap-4 mt-8 md:mt-0 relative z-10">
-          <Button variant="primary" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] border-none h-14 rounded-2xl px-8 flex items-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98]">
+          <Button variant="primary" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] border-none h-14 rounded-2xl px-8 flex items-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={() => setIsModalOpen(true)}>
             <Plus size={20} className="text-white" /> 
             <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white">New Workflow</span>
           </Button>
@@ -225,7 +229,16 @@ const Dashboard = () => {
         </Card>
       </div>
     </div>
-  );
+    <NewWorkflowModal
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      onCreated={(newWorkflow) => {
+        // Refresh stats after creating workflow
+        setLoading(true);
+        setIsModalOpen(false);
+      }}
+    />
+    </> );
 };
 
 export default Dashboard;

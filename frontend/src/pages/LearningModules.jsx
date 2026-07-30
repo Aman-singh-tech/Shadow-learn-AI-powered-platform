@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button } from '../components/ui';
-import { GraduationCap, CheckCircle, ArrowRight, BookOpen, Clock, Users, Play, Star, Sparkles, BrainCircuit, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { 
+  GraduationCap, 
+  CheckCircle, 
+  ArrowRight, 
+  BookOpen, 
+  Clock, 
+  Users, 
+  Play, 
+  Star, 
+  Sparkles, 
+  BrainCircuit, 
+  Loader2,
+  X,
+  Video
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { API_ENDPOINTS } from '../config/api';
+import { API_ENDPOINTS, API_BASE_URL } from '../config/api';
 
-const ModuleCard = ({ module, index }) => {
-  const progress = module.progress || 0; // Backend doesn't have progress yet, so default to 0
+const ModuleCard = ({ module, index, onStart }) => {
+  const progress = module.progress || 0; 
   
   return (
     <motion.div
@@ -61,7 +75,10 @@ const ModuleCard = ({ module, index }) => {
               />
             </div>
           </div>
-          <Button variant={progress === 100 ? 'secondary' : 'primary'} className={`w-full justify-between items-center group/btn h-14 rounded-2xl px-8 border-none shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98] ${
+          <Button 
+            onClick={() => onStart(module)}
+            variant={progress === 100 ? 'secondary' : 'primary'} 
+            className={`w-full justify-between items-center group/btn h-14 rounded-2xl px-8 border-none shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98] ${
             progress === 100 
               ? 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10' 
               : 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-indigo-600/20'
@@ -80,6 +97,8 @@ const ModuleCard = ({ module, index }) => {
 const LearningModules = () => {
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedModule, setSelectedModule] = useState(null);
+  const [playingWorkflow, setPlayingWorkflow] = useState(null);
 
   useEffect(() => {
     const fetchModules = async () => {
@@ -139,7 +158,7 @@ const LearningModules = () => {
       ) : modules.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 relative z-10">
           {modules.map((m, idx) => (
-            <ModuleCard key={m._id} module={m} index={idx} />
+            <ModuleCard key={m._id} module={m} index={idx} onStart={setSelectedModule} />
           ))}
         </div>
       ) : (
@@ -149,8 +168,152 @@ const LearningModules = () => {
            <Button variant="outline" className="mt-4 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10">Record First Workflow</Button>
         </div>
       )}
+
+      {/* Module Detail Modal */}
+      <AnimatePresence>
+        {selectedModule && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedModule(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-[#0a0f1a] rounded-[2.5rem] shadow-2xl w-full max-w-2xl border border-white/10 overflow-hidden"
+            >
+              <div className="p-10 pb-8 bg-gradient-to-br from-indigo-600/20 to-transparent border-b border-white/5 flex justify-between items-start">
+                <div>
+                  <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter mb-2">{selectedModule.title}</h2>
+                  <p className="text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em]">{selectedModule.difficulty || 'Neural Path'} • Expert: {selectedModule.instructor?.name || 'Collective Brain'}</p>
+                </div>
+                <button 
+                  onClick={() => setSelectedModule(null)}
+                  className="p-2 hover:bg-white/5 rounded-full text-gray-500 hover:text-white transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="p-10 space-y-8 max-h-[60vh] overflow-y-auto">
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Cognitive Overview</h4>
+                  <p className="text-gray-400 leading-relaxed italic">"{selectedModule.description}"</p>
+                </div>
+                
+                <div className="space-y-6">
+                  <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Operational Steps ({selectedModule.workflows?.length || 0})</h4>
+                  <div className="space-y-3">
+                    {selectedModule.workflows?.length > 0 ? (
+                      selectedModule.workflows.map((wf, idx) => (
+                        <div key={wf._id} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group hover:border-indigo-500/30 transition-all">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-black text-xs">
+                              {idx + 1}
+                            </div>
+                            <div>
+                              <p className="text-sm font-black text-white uppercase tracking-tight">{wf.title}</p>
+                              <p className="text-[9px] text-gray-600 uppercase tracking-widest font-black mt-1">Duration: {wf.duration || '0:00'}</p>
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="sm" onClick={() => setPlayingWorkflow(wf)} className="p-2 text-indigo-400 hover:text-white hover:bg-indigo-500/20 rounded-full">
+                             <Play size={18} fill="currentColor" />
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-10 border border-dashed border-white/5 rounded-2xl text-center">
+                         <Video size={32} className="mx-auto text-gray-800 mb-4 opacity-20" />
+                         <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest">No telemetry steps anchored yet.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-10 pt-6 border-t border-white/5 bg-white/2">
+                <Button 
+                  onClick={() => {
+                    toast.success("Training session initialized in neural link");
+                    setSelectedModule(null);
+                  }}
+                  className="w-full h-16 rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-indigo-600/20 border-none"
+                >
+                  Confirm Neural Encoding
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Knowledge Node - Player */}
+      <AnimatePresence>
+        {playingWorkflow && (
+           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+             <motion.div 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               onClick={() => setPlayingWorkflow(null)}
+               className="absolute inset-0 bg-black/90 backdrop-blur-3xl"
+             />
+             <motion.div 
+               initial={{ opacity: 0, scale: 0.95 }}
+               animate={{ opacity: 1, scale: 1 }}
+               exit={{ opacity: 0, scale: 0.95 }}
+               className="relative bg-[#0a0f1a] rounded-3xl shadow-[0_0_100px_rgba(0,0,0,0.8)] w-full max-w-4xl border border-white/10 overflow-hidden"
+             >
+                <div className="flex justify-between items-center p-6 border-b border-white/5 bg-[#0a0f1a] absolute top-0 left-0 right-0 z-10 backdrop-blur-md">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
+                       <Video size={20} />
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight truncate max-w-md">{playingWorkflow.title}</h3>
+                  </div>
+                  <button 
+                    onClick={() => setPlayingWorkflow(null)}
+                    className="p-2 hover:bg-white/5 text-gray-500 hover:text-white rounded-full transition-colors"
+                  >
+                    <X size={28} />
+                  </button>
+                </div>
+                <div className="aspect-video w-full bg-black flex items-center justify-center mt-[88px]">
+                   {playingWorkflow.videoUrl ? (
+                     <video 
+                       controls 
+                       autoPlay 
+                       className="w-full h-full shadow-2xl shadow-indigo-500/10"
+                       src={`${API_BASE_URL}${playingWorkflow.videoUrl}`}
+                     />
+                   ) : (
+                     <div className="text-gray-500 flex flex-col items-center gap-6">
+                       <div className="w-24 h-24 rounded-full bg-white/5 border border-white/5 flex items-center justify-center">
+                          <Video size={48} className="opacity-20 text-white" />
+                       </div>
+                       <p className="uppercase font-black tracking-widest text-[10px] text-gray-600">No telemetry data recorded for this node</p>
+                     </div>
+                   )}
+                </div>
+                <div className="p-6 bg-white/5 border-t border-white/5 flex items-center justify-between">
+                   <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center font-black text-indigo-400 text-xs shadow-lg shadow-indigo-500/10">
+                        {selectedModule?.instructor?.name?.[0] || 'E'}
+                      </div>
+                      <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{selectedModule?.instructor?.name || 'Expert Contributor'}</span>
+                   </div>
+                </div>
+             </motion.div>
+           </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 export default LearningModules;
+

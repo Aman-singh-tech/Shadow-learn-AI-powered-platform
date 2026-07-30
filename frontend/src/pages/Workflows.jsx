@@ -237,9 +237,9 @@ const Workflows = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-[#0a0f1a] rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] p-0 w-full max-w-xl border border-white/10 overflow-hidden"
+              className="relative bg-[#0a0f1a] rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] p-0 w-full max-w-xl border border-white/10 overflow-hidden flex flex-col max-h-[90vh]"
             >
-              <div className="flex justify-between items-start text-white p-10 pt-12 relative">
+              <div className="flex-shrink-0 flex justify-between items-start text-white p-10 pt-12 relative">
                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-600 to-cyan-500 opacity-90 z-0"></div>
                  <div className="relative z-10">
                     <h2 className="text-3xl font-black mb-2 uppercase tracking-tight leading-none italic">Capture Intelligence</h2>
@@ -253,68 +253,70 @@ const Workflows = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleAdd} className="p-10 space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Workflow Title</label>
-                  <input 
-                    name="title"
-                    type="text" 
-                    required
-                    placeholder="e.g. Setting up a new Postgres cluster" 
-                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/50 outline-none text-white transition-all placeholder:text-gray-700"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Contextual Summary</label>
-                  <textarea 
-                    name="description"
-                    rows="3"
-                    placeholder="Briefly bridge the knowledge gap..." 
-                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/50 outline-none text-white transition-all placeholder:text-gray-700 resize-none"
-                  />
-                </div>
-                
-                <div className="group relative">
-                   <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Source Media (Video)</label>
-                   <div className="relative overflow-hidden bg-white/5 border-2 border-dashed border-white/10 rounded-[2rem] hover:border-cyan-500/30 transition-all p-8 text-center flex flex-col items-center gap-3">
-                      <UploadCloud className="w-10 h-10 text-gray-700 group-hover:text-cyan-400 group-hover:scale-110 transition-all" />
-                      <div>
-                        <p className="text-xs font-bold text-gray-400">Click to upload or drag & drop</p>
-                        <p className="text-[10px] text-gray-600 mt-1 uppercase tracking-widest font-black">MP4, MOV up to 500MB</p>
-                      </div>
-                      <input 
-                        name="video"
-                        type="file" 
-                        accept="video/*"
-                        className="absolute inset-0 opacity-0 cursor-pointer"
-                      />
-                   </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-6">
-                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.15em] ml-1">Metadata Tags</label>
+              <div className="flex-1 overflow-y-auto px-10 pb-10 pt-6 space-y-6 scrollbar-thin scrollbar-thumb-cyan-500/20 scrollbar-track-transparent">
+                <form onSubmit={handleAdd} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Workflow Title</label>
                     <input 
-                      name="tags"
+                      name="title"
                       type="text" 
-                      placeholder="DevOps, Security" 
+                      required
+                      placeholder="e.g. Setting up a new Postgres cluster" 
                       className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/50 outline-none text-white transition-all placeholder:text-gray-700"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.15em] ml-1">Recorded By</label>
-                    <div className="w-full px-5 py-4 bg-white/5 border border-white/5 text-gray-500 rounded-2xl font-bold italic">
-                       {user?.name || 'Local Expert'}
+                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Contextual Summary</label>
+                    <textarea 
+                      name="description"
+                      rows="3"
+                      placeholder="Briefly bridge the knowledge gap..." 
+                      className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/50 outline-none text-white transition-all placeholder:text-gray-700 resize-none"
+                    />
+                  </div>
+                  
+                  <div className="group relative">
+                     <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Source Media (Video)</label>
+                     <div className="relative overflow-hidden bg-white/5 border-2 border-dashed border-white/10 rounded-[2rem] hover:border-cyan-500/30 transition-all p-8 text-center flex flex-col items-center gap-3">
+                        <UploadCloud className="w-10 h-10 text-gray-700 group-hover:text-cyan-400 group-hover:scale-110 transition-all" />
+                        <div>
+                          <p className="text-xs font-bold text-gray-400">Click to upload or drag & drop</p>
+                          <p className="text-[10px] text-gray-600 mt-1 uppercase tracking-widest font-black">MP4, MOV up to 500MB</p>
+                        </div>
+                        <input 
+                          name="video"
+                          type="file" 
+                          accept="video/*"
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                     <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.15em] ml-1">Metadata Tags</label>
+                      <input 
+                        name="tags"
+                        type="text" 
+                        placeholder="DevOps, Security" 
+                        className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/50 outline-none text-white transition-all placeholder:text-gray-700"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.15em] ml-1">Recorded By</label>
+                      <div className="w-full px-5 py-4 bg-white/5 border border-white/5 text-gray-500 rounded-2xl font-bold italic">
+                         {user?.name || 'Local Expert'}
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="pt-4 flex gap-4">
-                  <Button type="submit" variant="primary" className="w-full py-5 text-sm font-black uppercase tracking-[0.2em] shadow-2xl shadow-cyan-500/20 rounded-[1.5rem] border-none bg-gradient-to-r from-cyan-600 to-cyan-500 flex justify-center items-center">
-                    {loading ? <Loader2 size={24} className="animate-spin" /> : 'Synchronize with Vault'}
-                  </Button>
-                </div>
-              </form>
+                  
+                  <div className="pt-4 flex gap-4">
+                    <Button type="submit" variant="primary" className="w-full py-5 text-sm font-black uppercase tracking-[0.2em] shadow-2xl shadow-cyan-500/20 rounded-[1.5rem] border-none bg-gradient-to-r from-cyan-600 to-cyan-500 flex justify-center items-center">
+                      {loading ? <Loader2 size={24} className="animate-spin" /> : 'Synchronize with Vault'}
+                    </Button>
+                  </div>
+                </form>
+              </div>
             </motion.div>
           </div>
         )}

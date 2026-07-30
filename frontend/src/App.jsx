@@ -7,6 +7,7 @@ import 'aos/dist/aos.css';
 
 // Context
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
@@ -20,6 +21,7 @@ import Experts from './pages/Experts';
 import Handoffs from './pages/Handoffs';
 import Insights from './pages/Insights';
 import Auth from './pages/Auth';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   React.useEffect(() => {
@@ -33,6 +35,7 @@ function App() {
   }, []);
 
   return (
+    <ThemeProvider>
     <AuthProvider>
       <BrowserRouter>
         <Toaster 
@@ -49,6 +52,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/resetpassword/:token" element={<ResetPassword />} />
 
           {/* Protected Dashboard Routes */}
           <Route element={<ProtectedRoute />}>
@@ -69,6 +73,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 

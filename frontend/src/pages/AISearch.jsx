@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Card, Button } from '../components/ui';
 import { API_ENDPOINTS } from '../config/api';
 import { 
@@ -54,15 +55,45 @@ const Message = ({ text, sender, delay = 0 }) => {
           {sender === 'ai' && (
             <div className="absolute top-0 left-0 w-[2px] h-full bg-cyan-500/50"></div>
           )}
-          
-          <p className="text-sm leading-relaxed">{text}</p>
-          
-          {sender === 'ai' && (
-            <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap items-center gap-2">
-               <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Linked Knowledge:</span>
-               <button className="px-2 py-0.5 bg-white/5 border border-white/5 text-cyan-400 rounded-md text-[10px] font-bold hover:bg-cyan-500/10 transition-colors uppercase tracking-tighter">Onboarding_Workflow_V.2</button>
-               <button className="px-2 py-0.5 bg-white/5 border border-white/5 text-cyan-400 rounded-md text-[10px] font-bold hover:bg-cyan-500/10 transition-colors uppercase tracking-tighter">Handover_Protocol</button>
+
+          {/* Markdown Renderer for AI, plain text for user */}
+          {sender === 'ai' ? (
+            <div className="text-sm leading-relaxed markdown-body">
+              <ReactMarkdown
+                components={{
+                  h1: ({ children }) => <h1 className="text-lg font-bold text-cyan-300 mb-3 mt-1">{children}</h1>,
+                  h2: ({ children }) => <h2 className="text-base font-bold text-cyan-300 mb-2 mt-4">{children}</h2>,
+                  h3: ({ children }) => <h3 className="text-sm font-semibold text-cyan-400 mb-2 mt-3">{children}</h3>,
+                  p: ({ children }) => <p className="mb-3 last:mb-0 text-gray-300 leading-relaxed">{children}</p>,
+                  ul: ({ children }) => <ul className="mb-3 space-y-1.5 pl-1">{children}</ul>,
+                  ol: ({ children }) => <ol className="mb-3 space-y-1.5 pl-1 list-decimal list-inside">{children}</ol>,
+                  li: ({ children }) => (
+                    <li className="flex items-start gap-2 text-gray-300">
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0"></span>
+                      <span>{children}</span>
+                    </li>
+                  ),
+                  strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                  em: ({ children }) => <em className="italic text-gray-400">{children}</em>,
+                  code: ({ inline, children }) =>
+                    inline ? (
+                      <code className="px-1.5 py-0.5 bg-white/10 text-cyan-300 rounded text-xs font-mono">{children}</code>
+                    ) : (
+                      <pre className="mt-2 mb-3 p-3 bg-black/40 border border-white/10 rounded-xl overflow-x-auto">
+                        <code className="text-xs font-mono text-green-300 whitespace-pre-wrap">{children}</code>
+                      </pre>
+                    ),
+                  blockquote: ({ children }) => (
+                    <blockquote className="pl-3 border-l-2 border-cyan-500/50 text-gray-400 italic my-2">{children}</blockquote>
+                  ),
+                  hr: () => <hr className="border-white/10 my-3" />,
+                }}
+              >
+                {text}
+              </ReactMarkdown>
             </div>
+          ) : (
+            <p className="text-sm leading-relaxed">{text}</p>
           )}
         </div>
       </div>

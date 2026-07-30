@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShadowLearn – AI-Powered Knowledge Transfer Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --purple: #7c3aed;
+      --purple-light: #a855f7;
+      --cyan: #06b6d4;
+      --cyan-light: #22d3ee;
+      --bg-dark: #0a0a1a;
+      --bg-card: #111128;
+      --bg-card2: #161630;
+      --text-primary: #f0f0ff;
+      --text-secondary: #a0a0c0;
+      --border: rgba(124, 58, 237, 0.25);
+      --gradient-main: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+      --gradient-subtle: linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(6,182,212,0.15) 100%);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* ────────────────────────────────────────────
+       SLIDE BASE
+    ──────────────────────────────────────────── */
+    .slide {
+      width: 100%;
+      min-height: 100vh;
+      padding: 60px 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      page-break-after: always;
+      break-after: page;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide::before {
+      content: '';
+      position: absolute;
+      top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .slide::after {
+      content: '';
+      position: absolute;
+      bottom: -200px; left: -200px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(6,182,212,0.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ────────────────────────────────────────────
+       SLIDE 1 – COVER
+    ──────────────────────────────────────────── */
+    .slide-cover {
+      background: var(--bg-dark);
+      align-items: center;
+      text-align: center;
+      gap: 28px;
+    }
+
+    .cover-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(124,58,237,0.18);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--purple-light);
+      letter-spacing: 0.5px;
+    }
+
+    .cover-badge span { font-size: 16px; }
+
+    .cover-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 82px;
+      font-weight: 800;
+      line-height: 1;
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .cover-subtitle {
+      font-size: 22px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      max-width: 650px;
+    }
+
+    .cover-tagline {
+      font-size: 16px;
+      color: var(--cyan);
+      font-weight: 500;
+      font-style: italic;
+      border-left: 3px solid var(--cyan);
+      padding-left: 16px;
+      text-align: left;
+    }
+
+    .cover-pills {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .pill {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50px;
+      padding: 7px 18px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .cover-divider {
+      width: 120px;
+      height: 3px;
+      background: var(--gradient-main);
+      border-radius: 2px;
+    }
+
+    .presenter-info {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 36px;
+      display: flex;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .presenter-info div { text-align: left; }
+    .presenter-info .label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+    .presenter-info .value { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+
+    /* ────────────────────────────────────────────
+       SECTION HEADERS
+    ──────────────────────────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--cyan);
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 46px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+
+    .slide-title .accent {
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .slide-description {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 700px;
+      margin-bottom: 36px;
+    }
+
+    .title-underline {
+      width: 70px;
+      height: 4px;
+      background: var(--gradient-main);
+      border-radius: 2px;
+      margin: 12px 0 28px 0;
+    }
+
+    /* ────────────────────────────────────────────
+       PROBLEM SLIDE
+    ──────────────────────────────────────────── */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .problem-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .problem-icon {
+      width: 44px; height: 44px;
+      background: rgba(239, 68, 68, 0.12);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .problem-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+    .problem-text { font-size: 13px; color: var(--text-secondary); }
+
+    .stat-banner {
+      background: var(--gradient-subtle);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 38px;
+      font-weight: 800;
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+    /* ────────────────────────────────────────────
+       FEATURES SLIDE
+    ──────────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gradient-main);
+    }
+
+    .feature-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--purple-light);
+      opacity: 0.5;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .feature-icon {
+      font-size: 30px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .feature-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .feature-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+    .feature-value {
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--cyan);
+    }
+
+    /* ────────────────────────────────────────────
+       AI SECTION
+    ──────────────────────────────────────────── */
+    .ai-flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 28px 0;
+    }
+
+    .ai-node {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 22px;
+      text-align: center;
+      flex: 1;
+    }
+
+    .ai-node-icon { font-size: 28px; margin-bottom: 6px; }
+    .ai-node-title { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+    .ai-node-sub { font-size: 11px; color: var(--text-secondary); }
+
+    .ai-arrow {
+      font-size: 20px;
+      color: var(--purple-light);
+      padding: 0 8px;
+      flex-shrink: 0;
+    }
+
+    .ai-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 4px;
+    }
+
+    .ai-detail-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+
+    .ai-detail-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--purple-light);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ai-detail-list { list-style: none; }
+    .ai-detail-list li {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 3px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+    }
+    .ai-detail-list li::before { content: '▸'; color: var(--cyan); flex-shrink: 0; }
+
+    /* ────────────────────────────────────────────
+       TECH STACK
+    ──────────────────────────────────────────── */
+    .tech-categories {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .tech-category {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+    }
+
+    .tech-category-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .tech-category-icon {
+      width: 36px; height: 36px;
+      background: var(--gradient-subtle);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+
+    .tech-category-name { font-weight: 700; font-size: 14px; }
+    .tech-category-sub { font-size: 11px; color: var(--text-secondary); }
+
+    .tech-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .tech-tag {
+      background: rgba(124,58,237,0.12);
+      border: 1px solid rgba(124,58,237,0.25);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .tech-tag.cyan {
+      background: rgba(6,182,212,0.10);
+      border-color: rgba(6,182,212,0.25);
+    }
+
+    .arch-diagram {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 28px;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .arch-block {
+      text-align: center;
+      flex: 1;
+    }
+
+    .arch-box {
+      border-radius: 10px;
+      padding: 12px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .arch-box.frontend { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.35); }
+    .arch-box.backend  { background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.35); }
+    .arch-box.db       { background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.35); }
+    .arch-box.ai       { background: rgba(251,191,36,0.10); border: 1px solid rgba(251,191,36,0.3); }
+    .arch-box.auth     { background: rgba(249,115,22,0.10); border: 1px solid rgba(249,115,22,0.3); }
+
+    .arch-label { font-size: 10px; color: var(--text-secondary); }
+    .arch-arrow { font-size: 22px; color: var(--border); opacity: 0.8; }
+
+    /* ────────────────────────────────────────────
+       COMPARISON TABLE
+    ──────────────────────────────────────────── */
+    .comparison-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .comparison-table th {
+      background: rgba(124,58,237,0.15);
+      padding: 14px 20px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comparison-table th:first-child { border-radius: 16px 0 0 0; }
+    .comparison-table th:last-child { border-radius: 0 16px 0 0; }
+
+    .comparison-table td {
+      padding: 12px 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .comparison-table tr:last-child td { border-bottom: none; }
+    .comparison-table td:first-child { font-weight: 600; color: var(--text-primary); }
+    .comparison-table td.highlight { background: rgba(124,58,237,0.08); color: var(--cyan); font-weight: 600; }
+
+    .check { color: #4ade80; font-size: 16px; }
+    .cross { color: #f87171; font-size: 16px; }
+    .partial { color: #fbbf24; font-size: 16px; }
+
+    /* ────────────────────────────────────────────
+       API ENDPOINTS
+    ──────────────────────────────────────────── */
+    .api-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .api-group {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .api-group-header {
+      background: rgba(124,58,237,0.12);
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .api-endpoint {
+      padding: 8px 16px;
+      font-size: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .api-endpoint:last-child { border-bottom: none; }
+
+    .method {
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 5px;
+      padding: 2px 7px;
+      flex-shrink: 0;
+    }
+
+    .method.get    { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
+    .method.post   { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+    .method.put    { background: rgba(96,165,250,0.12); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+    .method.delete { background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+
+    .api-path { color: var(--text-secondary); font-family: monospace; }
+
+    /* ────────────────────────────────────────────
+       USE CASES
+    ──────────────────────────────────────────── */
+    .usecase-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+    }
+
+    .usecase-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-align: center;
+    }
+
+    .usecase-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .usecase-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+    .usecase-desc { font-size: 13px; color: var(--text-secondary); }
+
+    /* ────────────────────────────────────────────
+       CLOSING SLIDE
+    ──────────────────────────────────────────── */
+    .slide-closing {
+      align-items: center;
+      text-align: center;
+      gap: 24px;
+    }
+
+    .closing-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 60px;
+      font-weight: 800;
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .closing-quote {
+      max-width: 700px;
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .contact-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .contact-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+    .contact-value { font-size: 14px; font-weight: 600; color: var(--cyan); }
+
+    /* ────────────────────────────────────────────
+       PAGE NUMBER
+    ──────────────────────────────────────────── */
+    .page-num {
+      position: absolute;
+      bottom: 30px; right: 60px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 2px;
+    }
+
+    .slide-num-badge {
+      position: absolute;
+      top: 36px; right: 60px;
+      background: rgba(124,58,237,0.12);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 4px 14px;
+      font-size: 11px;
+      color: var(--purple-light);
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    /* ────────────────────────────────────────────
+       PRINT
+    ──────────────────────────────────────────── */
+    @media print {
+      body { background: #0a0a1a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .slide { page-break-after: always; break-after: page; min-height: 100vh; }
+    }
+
+    /* two-col layout helper */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+    /* highlight box */
+    .highlight-box {
+      background: var(--gradient-subtle);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 24px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .highlight-box .hi-icon { font-size: 22px; flex-shrink: 0; }
+
+    /* numbered steps */
+    .step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .step-num {
+      width: 32px; height: 32px;
+      background: var(--gradient-main);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800;
+      flex-shrink: 0;
+      color: white;
+    }
+
+    .step-content .step-title { font-weight: 600; font-size: 14px; }
+    .step-content .step-desc { font-size: 13px; color: var(--text-secondary); }
+
+    /* roadmap */
+    .roadmap { display: flex; flex-direction: column; gap: 12px; }
+    .roadmap-item {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 20px;
+    }
+
+    .roadmap-phase {
+      background: var(--gradient-main);
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      color: white;
+    }
+
+    .roadmap-title { font-weight: 600; font-size: 13px; }
+    .roadmap-items { font-size: 12px; color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 1 — COVER
+══════════════════════════════════════════════ -->
+<section class="slide slide-cover">
+  <div class="cover-badge"><span>🤖</span> Gen AI Powered · Enterprise Platform · 2026</div>
+
+  <div class="cover-title">ShadowLearn</div>
+  <div class="cover-divider"></div>
+
+  <div class="cover-subtitle">
+    An AI-Powered Knowledge Transfer Platform that captures, structures,
+    and reuses organizational intelligence
+  </div>
+
+  <div class="cover-tagline">
+    "Preventing knowledge loss. Accelerating onboarding. Empowering every team."
+  </div>
+
+  <div class="cover-pills">
+    <span class="pill">🧠 AI Knowledge Base</span>
+    <span class="pill">📹 Workflow Recording</span>
+    <span class="pill">📚 Task-Based Learning</span>
+    <span class="pill">🔄 Handoff Intelligence</span>
+    <span class="pill">💡 Solution Logs</span>
+    <span class="pill">📊 Insights Dashboard</span>
+  </div>
+
+  <div class="presenter-info">
+    <div>
+      <div class="label">Platform</div>
+      <div class="value">ShadowLearn v1.0</div>
+    </div>
+    <div>
+      <div class="label">Type</div>
+      <div class="value">Full-Stack Web Application</div>
+    </div>
+    <div>
+      <div class="label">AI Engine</div>
+      <div class="value">Google Gemini (Gen AI)</div>
+    </div>
+    <div>
+      <div class="label">Year</div>
+      <div class="value">2026</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 2 — THE PROBLEM
+══════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="slide-num-badge">02 / 10</div>
+  <div class="section-label">The Problem</div>
+  <div class="slide-title">Organizations Lose <span class="accent">Knowledge Every Day</span></div>
+  <div class="title-underline"></div>
+  <div class="slide-description">When employees leave, retire, or switch roles — critical knowledge walks out the door. Teams repeat the same mistakes. Onboarding takes months. Productivity suffers.</div>
+
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="problem-icon">🚪</div>
+      <div>
+        <div class="problem-title">Knowledge Loss on Exit</div>
+        <div class="problem-text">When employees leave, their years of experience, tricks, and shortcuts leave with them permanently.</div>
+      </div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🐢</div>
+      <div>
+        <div class="problem-title">Slow Onboarding</div>
+        <div class="problem-text">New hires take 3–6 months to become productive. Learning is ad-hoc, inconsistent, and time-consuming.</div>
+      </div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">♻️</div>
+      <div>
+        <div class="problem-title">Repeating Solved Problems</div>
+        <div class="problem-text">Teams solve the same bugs, deployment issues, and client problems again and again — wasting hours.</div>
+      </div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🔍</div>
+      <div>
+        <div class="problem-title">Hard to Find Information</div>
+        <div class="problem-text">Knowledge is scattered across emails, docs, wikis, and in people's heads. Searching takes forever.</div>
+      </div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🧑‍💼</div>
+      <div>
+        <div class="problem-title">Dependency on Individuals</div>
+        <div class="problem-text">"Only Rahul knows that system." Single points of failure create bottlenecks across teams.</div>
+      </div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🔀</div>
+      <div>
+        <div class="problem-title">Chaotic Role Transitions</div>
+        <div class="problem-text">No structured process when roles change. Handoffs are informal, incomplete, and high-risk.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-banner">
+    <div class="stat-item">
+      <div class="stat-num">73%</div>
+      <div class="stat-label">Critical knowledge goes undocumented</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">42%</div>
+      <div class="stat-label">Productivity lost due to knowledge gaps</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">10×</div>
+      <div class="stat-label">Faster onboarding with structured learning</div>
+    </div>
+  </div>
+  <div class="page-num">SHADOWLEARN PRESENTATION 2026</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 3 — THE SOLUTION
+══════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="slide-num-badge">03 / 10</div>
+  <div class="section-label">The Solution</div>
+  <div class="slide-title">Introducing <span class="accent">ShadowLearn</span></div>
+  <div class="title-underline"></div>
+
+  <div class="highlight-box" style="margin-bottom: 28px;">
+    <span class="hi-icon">💡</span>
+    <span><strong>ShadowLearn</strong> is an AI-powered knowledge transfer platform that helps organizations capture, organize, and preserve critical employee knowledge — making expertise a shared organizational asset, not a personal one.</span>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div style="margin-bottom: 20px;">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Capture Knowledge</div>
+            <div class="step-desc">Employees record workflows, document solutions, and create learning content directly in the platform.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Organize & Structure</div>
+            <div class="step-desc">AI automatically tags, categorizes, and links related knowledge across modules, workflows, and solutions.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Search & Retrieve</div>
+            <div class="step-desc">Ask the AI knowledge base in plain English — get precise, context-aware answers instantly.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Transfer Seamlessly</div>
+            <div class="step-desc">Automated handoff checklists ensure smooth transitions when employees change roles or leave.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <div class="highlight-box" style="flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; color: var(--text-secondary);">One-Line Definition</div>
+        <div style="font-size: 14px; font-style: italic; color: var(--cyan);">"An AI-powered platform that captures and transfers organizational knowledge to prevent knowledge loss and improve productivity."</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🎯</span>
+        <div class="feature-title">Target Users</div>
+        <div class="feature-desc">Startups, MNCs, Remote Teams, Tech Companies, Enterprises — any organization where knowledge matters.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📈</span>
+        <div class="feature-title">Key Outcome</div>
+        <div class="feature-desc">Reduce onboarding time by 10×, eliminate knowledge silos, and turn individual expertise into institutional capital.</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">SHADOWLEARN PRESENTATION 2026</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 4 — CORE FEATURES
+══════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="slide-num-badge">04 / 10</div>
+  <div class="section-label">Platform Features</div>
+  <div class="slide-title">7 Powerful <span class="accent">Core Features</span></div>
+  <div class="title-underline"></div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-num">FEATURE 01</span>
+      <span class="feature-icon">📹</span>
+      <div class="feature-title">Workflow Recording</div>
+      <div class="feature-desc">Employees record step-by-step task workflows with videos and documentation. "How to deploy the app" stays forever.</div>
+      <div class="feature-value">✦ Knowledge never leaves</div>
+    </div>
+
+    <div class="feature-card">
+      <span class="feature-num">FEATURE 02</span>
+      <span class="feature-icon">🧠</span>
+      <div class="feature-title">AI Knowledge Base</div>
+      <div class="feature-desc">Ask questions in plain English. Gemini AI searches all company knowledge and returns exact, contextual answers.</div>
+      <div class="feature-value">✦ Powered by Google Gemini</div>
+    </div>
+
+    <div class="feature-card">
+      <span class="feature-num">FEATURE 03</span>
+      <span class="feature-icon">💡</span>
+      <div class="feature-title">Solution Logs</div>
+      <div class="feature-desc">Document bug fixes, deployment issues, client strategies. Tagged and reusable — never solve the same problem twice.</div>
+      <div class="feature-value">✦ Institutional memory</div>
+    </div>
+
+    <div class="feature-card">
+      <span class="feature-num">FEATURE 04</span>
+      <span class="feature-icon">📚</span>
+      <div class="feature-title">Task-Based Learning Modules</div>
+      <div class="feature-desc">Learning tied to real job tasks, not theory. New hires learn "how to do THIS exact task" — resulting in 10× faster onboarding.</div>
+      <div class="feature-value">✦ 10× faster onboarding</div>
+    </div>
+
+    <div class="feature-card">
+      <span class="feature-num">FEATURE 05</span>
+      <span class="feature-icon">🔄</span>
+      <div class="feature-title">Handoff Intelligence</div>
+      <div class="feature-desc">Auto-generated checklists for role transitions — documents to share, tasks to explain, systems to hand over. Zero chaos.</div>
+      <div class="feature-value">✦ Smooth transitions</div>
+    </div>
+
+    <div class="feature-card">
+      <span class="feature-num">FEATURE 06</span>
+      <span class="feature-icon">👨‍💼</span>
+      <div class="feature-title">Expert Profiles</div>
+      <div class="feature-desc">System tracks who knows what. Even after an employee leaves, their expertise remains mapped and discoverable.</div>
+      <div class="feature-value">✦ Find experts instantly</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px;" class="feature-card">
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <span style="font-size: 36px;">📊</span>
+      <div>
+        <div class="feature-title" style="font-size: 16px;">FEATURE 07 — Insights & Analytics Dashboard</div>
+        <div class="feature-desc">Real-time organizational health metrics: documentation coverage, knowledge gaps, productivity impact scores, team activity, and onboarding velocity.</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">SHADOWLEARN PRESENTATION 2026</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 5 — HOW AI WORKS
+══════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="slide-num-badge">05 / 10</div>
+  <div class="section-label">AI Integration</div>
+  <div class="slide-title">How <span class="accent">Generative AI</span> Powers ShadowLearn</div>
+  <div class="title-underline"></div>
+
+  <!-- AI Flow Diagram -->
+  <div class="ai-flow">
+    <div class="ai-node">
+      <div class="ai-node-icon">👤</div>
+      <div class="ai-node-title">User Input</div>
+      <div class="ai-node-sub">Natural language query</div>
+    </div>
+    <div class="ai-arrow">→</div>
+    <div class="ai-node">
+      <div class="ai-node-icon">⚛️</div>
+      <div class="ai-node-title">React Frontend</div>
+      <div class="ai-node-sub">AISearch.jsx captures prompt</div>
+    </div>
+    <div class="ai-arrow">→</div>
+    <div class="ai-node" style="border-color: rgba(6,182,212,0.4);">
+      <div class="ai-node-icon">🚀</div>
+      <div class="ai-node-title">Express API</div>
+      <div class="ai-node-sub">POST /api/ai/generate</div>
+    </div>
+    <div class="ai-arrow">→</div>
+    <div class="ai-node" style="border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.05);">
+      <div class="ai-node-icon">🤖</div>
+      <div class="ai-node-title">Google Gemini</div>
+      <div class="ai-node-sub">gemini-3-flash-preview</div>
+    </div>
+    <div class="ai-arrow">→</div>
+    <div class="ai-node">
+      <div class="ai-node-icon">📝</div>
+      <div class="ai-node-title">AI Response</div>
+      <div class="ai-node-sub">Markdown rendered answer</div>
+    </div>
+  </div>
+
+  <div class="ai-details">
+    <div class="ai-detail-card">
+      <div class="ai-detail-title">🔧 Backend AI Engine (aiController.js)</div>
+      <ul class="ai-detail-list">
+        <li>Uses <code style="color: var(--cyan);">@google/generative-ai</code> official Node.js SDK</li>
+        <li>Initializes: <code style="color: var(--cyan);">new GoogleGenerativeAI(API_KEY)</code></li>
+        <li>Model: <code style="color: var(--cyan);">gemini-3-flash-preview</code> (high-speed, low-latency)</li>
+        <li>Accepts any user prompt via POST body</li>
+        <li>Returns structured JSON: <code style="color: var(--cyan);">{ success, result }</code></li>
+        <li>Full error handling with status codes</li>
+      </ul>
+    </div>
+
+    <div class="ai-detail-card">
+      <div class="ai-detail-title">⚛️ Frontend AI Interface (AISearch.jsx)</div>
+      <ul class="ai-detail-list">
+        <li>Real-time prompt input with submit handler</li>
+        <li>Axios POST request to <code style="color: var(--cyan);">/api/ai/generate</code></li>
+        <li>Streams and renders Markdown response</li>
+        <li>Uses <code style="color: var(--cyan);">react-markdown</code> for rich text display</li>
+        <li>Loading state with animated spinner</li>
+        <li>Toast notifications via <code style="color: var(--cyan);">react-hot-toast</code></li>
+      </ul>
+    </div>
+
+    <div class="ai-detail-card">
+      <div class="ai-detail-title">🎯 AI Use Cases in ShadowLearn</div>
+      <ul class="ai-detail-list">
+        <li>Natural language search across all company knowledge</li>
+        <li>Answering "How do I fix X?" with documented solutions</li>
+        <li>Generating learning module content suggestions</li>
+        <li>Intelligent handoff checklist recommendations</li>
+        <li>Workflow summary and description generation</li>
+        <li>Insight analysis and productivity reports</li>
+      </ul>
+    </div>
+
+    <div class="ai-detail-card">
+      <div class="ai-detail-title">🛡️ API Security & Configuration</div>
+      <ul class="ai-detail-list">
+        <li>API key stored in <code style="color: var(--cyan);">.env</code> (never exposed to client)</li>
+        <li>Protected via Express middleware authentication</li>
+        <li>Rate-limited to prevent abuse</li>
+        <li>CORS configured for specific frontend origin only</li>
+        <li>JWT-based user authentication before AI access</li>
+        <li>Environment-based config in <code style="color: var(--cyan);">config/config.js</code></li>
+      </ul>
+    </div>
+  </div>
+  <div class="page-num">SHADOWLEARN PRESENTATION 2026</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 6 — TECH STACK
+══════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="slide-num-badge">06 / 10</div>
+  <div class="section-label">Architecture</div>
+  <div class="slide-title">Complete <span class="accent">Tech Stack</span></div>
+  <div class="title-underline"></div>
+
+  <div class="tech-categories">
+    <div class="tech-category">
+      <div class="tech-category-header">
+        <div class="tech-category-icon">⚛️</div>
+        <div>
+          <div class="tech-category-name">Frontend</div>
+          <div class="tech-category-sub">React Ecosystem</div>
+        </div>
+      </div>
+      <div class="tech-tags">
+        <span class="tech-tag">React 19</span>
+        <span class="tech-tag">Vite 8</span>
+        <span class="tech-tag">React Router DOM v7</span>
+        <span class="tech-tag">TailwindCSS v4</span>
+        <span class="tech-tag">Framer Motion</span>
+        <span class="tech-tag">Lucide React</span>
+        <span class="tech-tag">Recharts</span>
+        <span class="tech-tag">React Markdown</span>
+        <span class="tech-tag">React Hot Toast</span>
+        <span class="tech-tag">AOS Animations</span>
+        <span class="tech-tag">@react-oauth/google</span>
+        <span class="tech-tag">date-fns</span>
+      </div>
+    </div>
+
+    <div class="tech-category">
+      <div class="tech-category-header">
+        <div class="tech-category-icon">🚀</div>
+        <div>
+          <div class="tech-category-name">Backend</div>
+          <div class="tech-category-sub">Node.js Ecosystem</div>
+        </div>
+      </div>
+      <div class="tech-tags">
+        <span class="tech-tag cyan">Express.js v5</span>
+        <span class="tech-tag cyan">Node.js</span>
+        <span class="tech-tag cyan">Mongoose v9</span>
+        <span class="tech-tag cyan">MongoDB</span>
+        <span class="tech-tag cyan">JWT (jsonwebtoken)</span>
+        <span class="tech-tag cyan">bcryptjs</span>
+        <span class="tech-tag cyan">Multer (file uploads)</span>
+        <span class="tech-tag cyan">dotenv</span>
+        <span class="tech-tag cyan">CORS</span>
+        <span class="tech-tag cyan">Nodemon (dev)</span>
+      </div>
+    </div>
+
+    <div class="tech-category">
+      <div class="tech-category-header">
+        <div class="tech-category-icon">🤖</div>
+        <div>
+          <div class="tech-category-name">AI & Cloud Services</div>
+          <div class="tech-category-sub">GenAI Integration</div>
+        </div>
+      </div>
+      <div class="tech-tags">
+        <span class="tech-tag">Google Gemini AI</span>
+        <span class="tech-tag">@google/generative-ai SDK</span>
+        <span class="tech-tag">Google OAuth 2.0</span>
+        <span class="tech-tag">google-auth-library</span>
+        <span class="tech-tag">gemini-3-flash-preview Model</span>
+      </div>
+    </div>
+
+    <div class="tech-category">
+      <div class="tech-category-header">
+        <div class="tech-category-icon">☁️</div>
+        <div>
+          <div class="tech-category-name">Deployment & DevOps</div>
+          <div class="tech-category-sub">Production Infrastructure</div>
+        </div>
+      </div>
+      <div class="tech-tags">
+        <span class="tech-tag cyan">Vercel (Frontend)</span>
+        <span class="tech-tag cyan">Render (Backend)</span>
+        <span class="tech-tag cyan">MongoDB Atlas (Cloud DB)</span>
+        <span class="tech-tag cyan">GitHub (Version Control)</span>
+        <span class="tech-tag cyan">REST API Architecture</span>
+        <span class="tech-tag cyan">Monorepo Structure</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Architecture Diagram -->
+  <div class="arch-diagram">
+    <div class="arch-block">
+      <div class="arch-box frontend">⚛️ React + Vite<br/><small style="font-weight:400;opacity:0.8">Vercel CDN</small></div>
+      <div class="arch-label">Frontend Layer</div>
+    </div>
+    <div class="arch-arrow">⟷</div>
+    <div class="arch-block">
+      <div class="arch-box backend">🚀 Express.js<br/><small style="font-weight:400;opacity:0.8">Render Cloud</small></div>
+      <div class="arch-label">API Layer</div>
+    </div>
+    <div class="arch-arrow">⟷</div>
+    <div class="arch-block">
+      <div class="arch-box db">🗄️ MongoDB Atlas<br/><small style="font-weight:400;opacity:0.8">Cloud Database</small></div>
+      <div class="arch-label">Data Layer</div>
+    </div>
+    <div class="arch-arrow">⟷</div>
+    <div class="arch-block">
+      <div class="arch-box ai">🤖 Gemini AI<br/><small style="font-weight:400;opacity:0.8">Google Cloud</small></div>
+      <div class="arch-label">AI Layer</div>
+    </div>
+    <div class="arch-arrow">⟷</div>
+    <div class="arch-block">
+      <div class="arch-box auth">🔐 Google OAuth<br/><small style="font-weight:400;opacity:0.8">Identity Provider</small></div>
+      <div class="arch-label">Auth Layer</div>
+    </div>
+  </div>
+  <div class="page-num">SHADOWLEARN PRESENTATION 2026</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 7 — API STRUCTURE
+══════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="slide-num-badge">07 / 10</div>
+  <div class="section-label">Backend Architecture</div>
+  <div class="slide-title">RESTful <span class="accent">API Structure</span></div>
+  <div class="title-underline"></div>
+  <div class="slide-description">ShadowLearn exposes a clean, well-organized REST API with 9 distinct route groups covering all major functional domains.</div>
+
+  <div class="api-grid">
+    <div class="api-group">
+      <div class="api-group-header">🔐 /api/auth — Authentication</div>
+      <div class="api-endpoint"><span class="method post">POST</span><span class="api-path">/register — User signup</span></div>
+      <div class="api-endpoint"><span class="method post">POST</span><span class="api-path">/login — Email/password login</span></div>
+      <div class="api-endpoint"><span class="method post">POST</span><span class="api-path">/google — Google OAuth 2.0 login</span></div>
+      <div class="api-endpoint"><span class="method get">GET</span><span class="api-path">/me — Get current user (protected)</span></div>
+    </div>
+
+    <div class="api-group">
+      <div class="api-group-header">🤖 /api/ai — AI Engine</div>
+      <div class="api-endpoint"><span class="method post">POST</span><span class="api-path">/generate — Gemini AI content generation</span></div>
+    </div>
+
+    <div class="api-group">
+      <div class="api-group-header">📹 /api/workflows — Workflow Management</div>
+      <div class="api-endpoint"><span class="method get">GET</span><span class="api-path">/ — Get all workflows</span></div>
+      <div class="api-endpoint"><span class="method post">POST</span><span class="api-path">/ — Create new workflow</span></div>
+      <div class="api-endpoint"><span class="method put">PUT</span><span class="api-path">/:id — Update workflow</span></div>
+      <div class="api-endpoint"><span class="method delete">DEL</span><span class="api-path">/:id — Delete workflow</span></div>
+    </div>
+
+    <div class="api-group">
+      <div class="api-group-header">💡 /api/solutions — Solution Logs</div>
+      <div class="api-endpoint"><span class="method get">GET</span><span class="api-path">/ — Get all solution logs</span></div>
+      <div class="api-endpoint"><span class="method post">POST</span><span class="api-path">/ — Log a new solution</span></div>
+      <div class="api-endpoint"><span class="method put">PUT</span><span class="api-path">/:id — Edit solution</span></div>
+      <div class="api-endpoint"><span class="method delete">DEL</span><span class="api-path">/:id — Remove solution</span></div>
+    </div>
+
+    <div class="api-group">
+      <div class="api-group-header">📚 /api/modules — Learning Modules</div>
+      <div class="api-endpoint"><span class="method get">GET</span><span class="api-path">/ — Get all modules</span></div>
+      <div class="api-endpoint"><span class="method post">POST</span><span class="api-path">/ — Create module</span></div>
+      <div class="api-endpoint"><span class="method put">PUT</span><span class="api-path">/:id — Update module</span></div>
+      <div class="api-endpoint"><span class="method delete">DEL</span><span class="api-path">/:id — Delete module</span></div>
+    </div>
+
+    <div class="api-group">
+      <div class="api-group-header">🔄 /api/handoffs — Handoff System</div>
+      <div class="api-endpoint"><span class="method get">GET</span><span class="api-path">/ — List all handoffs</span></div>
+      <div class="api-endpoint"><span class="method post">POST</span><span class="api-path">/ — Create handoff</span></div>
+      <div class="api-endpoint"><span class="method put">PUT</span><span class="api-path">/:id — Update handoff</span></div>
+    </div>
+
+    <div class="api-group">
+      <div class="api-group-header">📊 /api/dashboard — Analytics</div>
+      <div class="api-endpoint"><span class="method get">GET</span><span class="api-path">/stats — Summary statistics</span></div>
+      <div class="api-endpoint"><span class="method get">GET</span><span class="api-path">/recent — Recent activity</span></div>
+    </div>
+
+    <div class="api-group">
+      <div class="api-group-header">💡 /api/insights + /api/users</div>
+      <div class="api-endpoint"><span class="method get">GET</span><span class="api-path">/insights — Organizational insights</span></div>
+      <div class="api-endpoint"><span class="method get">GET</span><span class="api-path">/users — All user profiles</span></div>
+      <div class="api-endpoint"><span class="method put">PUT</span><span class="api-path">/users/:id — Update expert profile</span></div>
+    </div>
+  </div>
+  <div class="page-num">SHADOWLEARN PRESENTATION 2026</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 8 — COMPARISON
+══════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="slide-num-badge">08 / 10</div>
+  <div class="section-label">Competitive Analysis</div>
+  <div class="slide-title">ShadowLearn vs <span class="accent">The Competition</span></div>
+  <div class="title-underline"></div>
+  <div class="slide-description">How ShadowLearn compares to established knowledge management tools in the enterprise space.</div>
+
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th style="background: rgba(124,58,237,0.25); color: #c084fc;">🟣 ShadowLearn</th>
+        <th>Confluence</th>
+        <th>Notion AI</th>
+        <th>Guru</th>
+        <th>Loom</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>AI-Powered Knowledge Search</td>
+        <td class="highlight">✅ Native Gemini AI</td>
+        <td>⚡ Add-on only</td>
+        <td>✅ GPT-based</td>
+        <td>⚡ Limited</td>
+        <td>❌ No</td>
+      </tr>
+      <tr>
+        <td>Workflow Recording System</td>
+        <td class="highlight">✅ Full CRUD</td>
+        <td>⚡ Pages only</td>
+        <td>⚡ Docs only</td>
+        <td>❌ No</td>
+        <td>✅ Video only</td>
+      </tr>
+      <tr>
+        <td>Solution / Bug Logs</td>
+        <td class="highlight">✅ Dedicated module</td>
+        <td>⚡ Manual pages</td>
+        <td>⚡ Manual only</td>
+        <td>❌ No</td>
+        <td>❌ No</td>
+      </tr>
+      <tr>
+        <td>Task-Based Learning Modules</td>
+        <td class="highlight">✅ Built-in</td>
+        <td>❌ No</td>
+        <td>❌ No</td>
+        <td>⚡ Partial</td>
+        <td>❌ No</td>
+      </tr>
+      <tr>
+        <td>Handoff Intelligence System</td>
+        <td class="highlight">✅ Automated</td>
+        <td>❌ No</td>
+        <td>❌ No</td>
+        <td>❌ No</td>
+        <td>❌ No</td>
+      </tr>
+      <tr>
+        <td>Expert Profile Mapping</td>
+        <td class="highlight">✅ Auto-tracked</td>
+        <td>⚡ Directory</td>
+        <td>❌ No</td>
+        <td>⚡ Limited</td>
+        <td>❌ No</td>
+      </tr>
+      <tr>
+        <td>Google OAuth Login</td>
+        <td class="highlight">✅ Native</td>
+        <td>✅ SSO</td>
+        <td>✅ Social</td>
+        <td>✅ SSO</td>
+        <td>✅ Social</td>
+      </tr>
+      <tr>
+        <td>Analytics Dashboard</td>
+        <td class="highlight">✅ Real-time stats</td>
+        <td>⚡ Basic</td>
+        <td>❌ No</td>
+        <td>⚡ Basic</td>
+        <td>⚡ View stats</td>
+      </tr>
+      <tr>
+        <td>Free & Open Source Core</td>
+        <td class="highlight">✅ Yes</td>
+        <td>❌ Paid ($$$)</td>
+        <td>❌ Paid</td>
+        <td>❌ Paid</td>
+        <td>⚡ Freemium</td>
+      </tr>
+      <tr>
+        <td>Built specifically for knowledge transfer</td>
+        <td class="highlight">✅ Core purpose</td>
+        <td>⚡ Generic docs</td>
+        <td>⚡ Generic docs</td>
+        <td>⚡ Partial</td>
+        <td>❌ Video only</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box" style="margin-top: 20px;">
+    <span class="hi-icon">🏆</span>
+    <span>ShadowLearn is the <strong>only platform</strong> that combines AI-powered search, workflow recording, solution logs, task learning, handoff intelligence, and expert profiling <strong>in one unified product</strong> — purpose-built for organizational knowledge transfer.</span>
+  </div>
+  <div class="page-num">SHADOWLEARN PRESENTATION 2026</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 9 — USE CASES & ROADMAP
+══════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="slide-num-badge">09 / 10</div>
+  <div class="section-label">Real-World Impact</div>
+  <div class="slide-title">Who Uses <span class="accent">ShadowLearn</span></div>
+  <div class="title-underline"></div>
+
+  <div class="usecase-grid">
+    <div class="usecase-card">
+      <div class="usecase-icon">🏢</div>
+      <div class="usecase-title">Tech Startups</div>
+      <div class="usecase-desc">Fast-moving teams use ShadowLearn to preserve knowledge as they scale. Onboard new devs in days, not months.</div>
+    </div>
+    <div class="usecase-card">
+      <div class="usecase-icon">🏦</div>
+      <div class="usecase-title">Enterprise MNCs</div>
+      <div class="usecase-desc">Large organizations prevent mission-critical knowledge from leaving when senior employees retire or switch roles.</div>
+    </div>
+    <div class="usecase-card">
+      <div class="usecase-icon">🌐</div>
+      <div class="usecase-title">Remote Teams</div>
+      <div class="usecase-desc">Distributed teams across time zones share knowledge asynchronously. No more "ask Priya, she knows" bottlenecks.</div>
+    </div>
+  </div>
+
+  <div style="height: 24px;"></div>
+  <div class="section-label">Product Roadmap</div>
+  <div class="roadmap">
+    <div class="roadmap-item">
+      <div class="roadmap-phase">✅ v1.0 — Now</div>
+      <div>
+        <div class="roadmap-title">Core Platform Launch</div>
+        <div class="roadmap-items">Workflows · Solutions · Modules · Handoffs · AI Search · Expert Profiles · Dashboard · Google OAuth</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-phase">🔜 v1.5 — Next</div>
+      <div>
+        <div class="roadmap-title">Enhanced AI Features</div>
+        <div class="roadmap-items">AI-generated module content · Smart handoff suggestions · Auto-tagging of knowledge · Semantic search</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-phase">🚀 v2.0 — Future</div>
+      <div>
+        <div class="roadmap-title">Enterprise Scale</div>
+        <div class="roadmap-items">Multi-tenant architecture · Team analytics · Slack/Jira integration · Knowledge health scoring · API for 3rd party</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">SHADOWLEARN PRESENTATION 2026</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 10 — CLOSING
+══════════════════════════════════════════════ -->
+<section class="slide slide-closing">
+  <div class="slide-num-badge">10 / 10</div>
+
+  <div class="cover-badge"><span>🎯</span> Summary · ShadowLearn 2026</div>
+
+  <div class="closing-title">Thank You</div>
+
+  <div class="cover-divider"></div>
+
+  <div class="closing-quote">
+    "ShadowLearn transforms individual expertise into organizational capital — ensuring that when someone leaves, their knowledge stays. Built with React, Node.js, MongoDB, and <strong style="color: var(--cyan);">powered by Google Gemini AI</strong>."
+  </div>
+
+  <div class="contact-grid">
+    <div class="contact-card">
+      <div class="contact-label">Platform</div>
+      <div class="contact-value">ShadowLearn</div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-label">AI Engine</div>
+      <div class="contact-value">Google Gemini</div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-label">Version</div>
+      <div class="contact-value">v1.0 · 2026</div>
+    </div>
+  </div>
+
+  <!-- Key takeaways -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; width: 100%; max-width: 800px; margin-top: 8px;">
+    <div class="feature-card" style="text-align: center; padding: 18px;">
+      <div style="font-size: 28px; margin-bottom: 6px;">🧠</div>
+      <div class="feature-title">Solves Real Problem</div>
+      <div class="feature-desc" style="font-size: 12px;">$4.5 trillion lost annually due to knowledge gaps</div>
+    </div>
+    <div class="feature-card" style="text-align: center; padding: 18px;">
+      <div style="font-size: 28px; margin-bottom: 6px;">🤖</div>
+      <div class="feature-title">Gen AI at Core</div>
+      <div class="feature-desc" style="font-size: 12px;">Not AI as a feature — AI as the foundation</div>
+    </div>
+    <div class="feature-card" style="text-align: center; padding: 18px;">
+      <div style="font-size: 28px; margin-bottom: 6px;">🚀</div>
+      <div class="feature-title">Production Ready</div>
+      <div class="feature-desc" style="font-size: 12px;">Deployed on Vercel + Render + MongoDB Atlas</div>
+    </div>
+  </div>
+
+  <div class="cover-tagline" style="margin-top: 10px;">
+    "Don't let knowledge leave when people do."
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,37 +1,222 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;700;800;900&display=swap');
 @import "tailwindcss";
 
+/* ─────────────────── GLOBAL RESET ─────────────────── */
 html {
   scroll-behavior: smooth;
 }
 
-html, body {
-  background-color: #030810;
-  color: #f3f4f6;
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ─────────────────── DARK THEME (default) ─────────────────── */
+:root,
+html.sl-dark,
+[data-theme="dark"] {
+  --bg-primary:        #030810;
+  --bg-secondary:      #040a18;
+  --bg-card:           rgba(255,255,255,0.04);
+  --bg-card-hover:     rgba(255,255,255,0.07);
+  --bg-sidebar:        #030712;
+  --bg-input:          rgba(255,255,255,0.05);
+
+  --border-primary:    rgba(255,255,255,0.08);
+  --border-sidebar:    rgba(255,255,255,0.06);
+
+  --text-primary:      #f3f4f6;
+  --text-secondary:    #9ca3af;
+  --text-muted:        #6b7280;
+  --text-heading:      #ffffff;
+
+  --accent-primary:    #22d3ee;
+  --accent-blue:       #3b82f6;
+  --accent-purple:     #8b5cf6;
+
+  --scrollbar-track:   #030810;
+  --scrollbar-thumb:   rgba(34,211,238,0.2);
+  --scrollbar-hover:   rgba(34,211,238,0.4);
+
+  --shadow-card:       0 4px 24px rgba(0,0,0,0.4);
+  --shadow-nav:        0 8px 32px rgba(0,0,0,0.5);
+
   color-scheme: dark;
-  margin: 0;
+}
+
+/* ─────────────────── LIGHT THEME ─────────────────── */
+html.sl-light,
+[data-theme="light"] {
+  --bg-primary:        #f0f4ff;
+  --bg-secondary:      #e8eeff;
+  --bg-card:           rgba(255,255,255,0.75);
+  --bg-card-hover:     rgba(255,255,255,0.95);
+  --bg-sidebar:        #ffffff;
+  --bg-input:          rgba(99,102,241,0.05);
+
+  --border-primary:    rgba(99,102,241,0.12);
+  --border-sidebar:    rgba(99,102,241,0.1);
+
+  --text-primary:      #1e293b;
+  --text-secondary:    #475569;
+  --text-muted:        #94a3b8;
+  --text-heading:      #0f172a;
+
+  --accent-primary:    #06b6d4;
+  --accent-blue:       #4f46e5;
+  --accent-purple:     #7c3aed;
+
+  --scrollbar-track:   #e2e8f0;
+  --scrollbar-thumb:   rgba(99,102,241,0.3);
+  --scrollbar-hover:   rgba(99,102,241,0.5);
+
+  --shadow-card:       0 4px 24px rgba(99,102,241,0.08);
+  --shadow-nav:        0 4px 20px rgba(99,102,241,0.12);
+
+  color-scheme: light;
+}
+
+/* ─────────────────── BASE BODY STYLES ─────────────────── */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  margin: 0;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-:root {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-}
-
-/* Scrollbar */
+/* ─────────────────── SCROLLBAR ─────────────────── */
 ::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #030810; }
-::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.2); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(34,211,238,0.4); }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
 
-/* Selection */
-::selection { background: rgba(34,211,238,0.25); color: #fff; }
+/* ─────────────────── SELECTION ─────────────────── */
+::selection { background: rgba(34,211,238,0.25); color: var(--text-heading); }
 
-/* Animated gradient shimmer */
+/* ─────────────────── SHIMMER ANIMATION ─────────────────── */
 @keyframes shimmer {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+/* ─────────────────── LIGHT MODE GLOBAL OVERRIDES ─────────────────── */
+
+/* Dashboard Layout */
+[data-theme="light"] .min-h-screen.flex.bg-\[\#030712\] {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Sidebar */
+[data-theme="light"] aside.bg-\[\#030712\] {
+  background-color: var(--bg-sidebar) !important;
+  border-right-color: var(--border-sidebar) !important;
+}
+
+/* Sidebar nav items */
+[data-theme="light"] .text-gray-400 {
+  color: var(--text-secondary) !important;
+}
+[data-theme="light"] .hover\:bg-gray-800\/50:hover {
+  background-color: rgba(99,102,241,0.06) !important;
+}
+[data-theme="light"] .hover\:text-gray-100:hover {
+  color: var(--text-heading) !important;
+}
+[data-theme="light"] .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+[data-theme="light"] .text-white {
+  color: var(--text-heading) !important;
+}
+
+/* Cards with dark backgrounds */
+[data-theme="light"] .bg-gray-900\/40,
+[data-theme="light"] .bg-\[#0a0f1a\]\/80,
+[data-theme="light"] .bg-\[#0a1120\] {
+  background-color: var(--bg-card) !important;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-card);
+}
+[data-theme="light"] .border-gray-800 {
+  border-color: var(--border-primary) !important;
+}
+[data-theme="light"] .border-gray-800\/50 {
+  border-color: var(--border-sidebar) !important;
+}
+
+/* Hover states on items */
+[data-theme="light"] .hover\:bg-gray-800\/40:hover {
+  background-color: rgba(99,102,241,0.06) !important;
+}
+[data-theme="light"] .hover\:border-gray-700:hover {
+  border-color: rgba(99,102,241,0.2) !important;
+}
+
+/* Chart tooltip / dark surfaces */
+[data-theme="light"] .bg-\[#030812\],
+[data-theme="light"] .bg-\[#060d1a\],
+[data-theme="light"] .bg-\[#080f1f\],
+[data-theme="light"] [style*="background: '#0a0f1a'"],
+[data-theme="light"] [style*="background: '#030810'"] {
+  background-color: var(--bg-card) !important;
+}
+
+/* Text color global overrides for light */
+[data-theme="light"] .text-gray-100 {
+  color: var(--text-primary) !important;
+}
+[data-theme="light"] .text-gray-300 {
+  color: var(--text-secondary) !important;
+}
+[data-theme="light"] .text-gray-600 {
+  color: var(--text-muted) !important;
+}
+
+/* Sidebar active item */
+[data-theme="light"] .bg-blue-600\/10 {
+  background-color: rgba(79,70,229,0.08) !important;
+}
+[data-theme="light"] .border-blue-500\/20 {
+  border-color: rgba(79,70,229,0.2) !important;
+}
+
+/* Input / search fields */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-primary) !important;
+}
+
+/* Modal overlays */
+[data-theme="light"] .bg-black\/60,
+[data-theme="light"] .bg-black\/50 {
+  background-color: rgba(15,23,42,0.5) !important;
+}
+
+/* Toast notifications */
+[data-theme="light"] [class*="react-hot-toast"] > div {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border: 1px solid rgba(99,102,241,0.2) !important;
+}
+
+/* Sidebar logo text */
+[data-theme="light"] .font-\[\'Outfit\'\] {
+  color: var(--text-heading) !important;
+}
+
+/* Page section backgrounds */
+[data-theme="light"] main {
+  background-color: var(--bg-primary);
+}
+
+/* Gradient headings - keep them vibrant in light mode */
+[data-theme="light"] .bg-gradient-to-r.from-blue-400.to-indigo-500 {
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

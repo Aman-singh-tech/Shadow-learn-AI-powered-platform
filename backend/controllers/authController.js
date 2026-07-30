@@ -1,13 +1,20 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { OAuth2Client } = require('google-auth-library');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const User = require('../models/User');
+const config = require('../config/config');
+
+const client = new OAuth2Client(config.GOOGLE_CLIENT_ID);
 
 // Generate JWT
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET || 'secret123', {
+    return jwt.sign({ id }, config.JWT_SECRET, {
         expiresIn: '30d',
     });
 };
+
 
 const registerUser = async (req, res) => {
     try {
@@ -40,6 +47,7 @@ const registerUser = async (req, res) => {
                 _id: user.id,
                 name: user.name,
                 email: user.email,
+                profilePicture: user.profilePicture,
                 token: generateToken(user._id),
             });
         } else {
@@ -63,6 +71,7 @@ const loginUser = async (req, res) => {
                 _id: user.id,
                 name: user.name,
                 email: user.email,
+                profilePicture: user.profilePicture,
                 token: generateToken(user._id),
             });
         } else {
@@ -82,8 +91,139 @@ const getMe = async (req, res) => {
     }
 };
 
+const googleLogin = async (req, res) => {
+    try {
+        const { credential } = req.body;
+        
+        // Verify the Google token
+        const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: config.GOOGLE_CLIENT_ID
+        });
+        
+        const payload = ticket.getPayload();
+        const { email, name, sub: googleId, picture } = payload;
+        
+        // Check if user exists
+        let user = await User.findOne({ email });
+        
+        if (user) {
+            // Update googleId and profilePicture if not present
+            if (!user.googleId) user.googleId = googleId;
+            if (!user.profilePicture) user.profilePicture = picture;
+            await user.save();
+        } else {
+            // Create a new user for Google login
+            user = await User.create({
+                name,
+                email,
+                googleId,
+                profilePicture: picture,
+                // Assign a strong random password since our DB required false handles the schema, but just in case
+                // Actually password is required: false in schema, so we don't need to pass it.
+            });
+        }
+        
+        res.json({
+            _id: user.id,
+            name: user.name,
+            email: user.email,
+            profilePicture: user.profilePicture,
+            token: generateToken(user._id),
+        });
+        
+    } catch (error) {
+        console.error('Error in googleLogin:', error);
+        res.status(401).json({ error: 'Google authentication failed' });
+    }
+};
+
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found with this email' });
+        }
+
+        // Generate token
+        const resetToken = crypto.randomBytes(20).toString('hex');
+        
+        // Set token and expiration (1 hour)
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 3600000;
+        await user.save();
+
+        // Create transporter
+        const transporter = nodemailer.createTransport({
+            service: 'gmail', // You can change this based on provider
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        // Set up email data
+        const frontendUrl = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'http://localhost:5173';
+        const resetUrl = `${frontendUrl}/resetpassword/${resetToken}`;
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: user.email,
+            subject: 'Password Reset - ShadowLearn',
+            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
+                  `Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n` +
+                  `${resetUrl}\n\n` +
+                  `If you did not request this, please ignore this email and your password will remain unchanged.\n`
+        };
+
+        // Send email
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).json({ success: true, message: 'Password reset link sent to email' });
+
+    } catch (error) {
+        console.error('Error in forgotPassword:', error);
+        res.status(500).json({ error: 'Error sending email' });
+    }
+};
+
+const resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ error: 'Password reset token is invalid or has expired' });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Update user
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.status(200).json({ success: true, message: 'Password has been updated successfully' });
+
+    } catch (error) {
+        console.error('Error in resetPassword:', error);
+        res.status(500).json({ error: 'Server error during password reset' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
-    getMe
+    getMe,
+    googleLogin,
+    forgotPassword,
+    resetPassword
 };

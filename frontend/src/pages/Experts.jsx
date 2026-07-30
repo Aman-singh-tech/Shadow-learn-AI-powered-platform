@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { mockExperts } from '../data/mockData';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 const SkillBadge = ({ skill }) => (
   <span className="px-3 py-1 bg-white/5 text-gray-400 rounded-lg text-[10px] font-black uppercase tracking-tight border border-white/5 hover:border-cyan-500/30 hover:text-cyan-400 transition-all cursor-default">
@@ -76,10 +77,16 @@ const ExpertCard = ({ expert, index }) => (
         </div>
 
        <div className="flex w-full gap-3 mt-auto border-t border-white/5 pt-8">
-          <Button variant="outline" size="sm" className="flex-1 flex items-center justify-center gap-2 h-12 border-white/10 bg-white/5 text-gray-400 hover:text-white rounded-xl uppercase font-black tracking-widest text-[9px]">
+          <Button onClick={() => {
+             if (expert.email) {
+                window.location.href = `mailto:${expert.email}`;
+             } else {
+                toast.error("Email terminal offline for this neural node.");
+             }
+          }} variant="outline" size="sm" className="flex-1 flex items-center justify-center gap-2 h-12 border-white/10 bg-white/5 text-gray-400 hover:text-white rounded-xl uppercase font-black tracking-widest text-[9px]">
              <Mail size={16} /> Contact
           </Button>
-          <Button variant="primary" size="sm" className="flex-1 flex items-center justify-center gap-2 h-12 border-none bg-gradient-to-r from-cyan-600 to-cyan-500 text-white rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.2)] uppercase font-black tracking-widest text-[9px]">
+          <Button onClick={() => toast.success(`Pinging remote neuron: ${expert.name || 'Anonymous Neuron'}`)} variant="primary" size="sm" className="flex-1 flex items-center justify-center gap-2 h-12 border-none bg-gradient-to-r from-cyan-600 to-cyan-500 text-white rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.2)] uppercase font-black tracking-widest text-[9px]">
              <MessageSquare size={16} /> Signal
           </Button>
        </div>
@@ -190,7 +197,7 @@ const Experts = () => {
                   <h3 className="text-3xl font-black text-white tracking-tighter uppercase italic leading-none">Promote Your Neural Node?</h3>
                   <p className="text-gray-400 text-lg leading-relaxed italic max-w-lg mx-auto">ShadowLearn automatically verifies contributors based on their operational workflow recordings and verified solution success rates.</p>
                </div>
-               <Button variant="primary" className="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] h-16 px-12 text-sm font-black uppercase tracking-[0.3em] rounded-2xl border-none shadow-2xl shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95">Verify Operational Status</Button>
+               <Button onClick={() => toast.success("Verification request queued in system brain.")} variant="primary" className="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] h-16 px-12 text-sm font-black uppercase tracking-[0.3em] rounded-2xl border-none shadow-2xl shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95">Verify Operational Status</Button>
             </div>
          </div>
       </motion.div>

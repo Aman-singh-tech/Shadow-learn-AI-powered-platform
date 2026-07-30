@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { 
   Mail, 
@@ -11,19 +12,23 @@ import {
   Zap, 
   Cpu, 
   ChevronRight,
-  Loader2
+  Loader2,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: ''
   });
   
-  const { login, register, user } = useAuth();
+  const { login, register, googleLogin, forgotPassword, user } = useAuth();
   const navigate = useNavigate();
 
   // If already logged in, redirect to dashboard
@@ -36,12 +41,28 @@ const Auth = () => {
     setLoading(true);
     
     let result;
-    if (isLogin) {
+    if (isForgotPassword) {
+      result = await forgotPassword(formData.email);
+      setLoading(false);
+      if (result.success) {
+        setIsForgotPassword(false);
+      }
+      return;
+    } else if (isLogin) {
       result = await login(formData.email, formData.password);
     } else {
       result = await register(formData.name, formData.email, formData.password);
     }
     
+    setLoading(false);
+    if (result.success) {
+      navigate('/dashboard');
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    const result = await googleLogin(credentialResponse.credential);
     setLoading(false);
     if (result.success) {
       navigate('/dashboard');
@@ -93,14 +114,14 @@ const Auth = () => {
           
           <div className="flex justify-between items-center mb-8 bg-white/5 p-1 rounded-xl border border-white/5">
             <button 
-              onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${isLogin ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/20' : 'text-gray-400 hover:text-white'}`}
+              onClick={() => { setIsLogin(true); setIsForgotPassword(false); }}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${isLogin && !isForgotPassword ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/20' : 'text-gray-400 hover:text-white'}`}
             >
               Login
             </button>
             <button 
-              onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${!isLogin ? 'bg-purple-500/20 text-purple-400 border border-purple-500/20' : 'text-gray-400 hover:text-white'}`}
+              onClick={() => { setIsLogin(false); setIsForgotPassword(false); }}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${!isLogin && !isForgotPassword ? 'bg-purple-500/20 text-purple-400 border border-purple-500/20' : 'text-gray-400 hover:text-white'}`}
             >
               Register
             </button>
@@ -108,7 +129,7 @@ const Auth = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <AnimatePresence mode="wait">
-              {!isLogin && (
+              {!isLogin && !isForgotPassword && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
@@ -121,7 +142,7 @@ const Auth = () => {
                     <input 
                       type="text"
                       name="name"
-                      required={!isLogin}
+                      required={!isLogin && !isForgotPassword}
                       value={formData.name}
                       onChange={handleInputChange}
                       placeholder="John Doe"
@@ -148,30 +169,46 @@ const Auth = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between ml-1">
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Password</label>
-                {isLogin && <button type="button" className="text-xs text-cyan-400 hover:underline">Forgot?</button>}
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                <input 
-                  type="password"
-                  name="password"
-                  required
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="••••••••"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
-                />
-              </div>
-            </div>
+            <AnimatePresence mode="wait">
+              {!isForgotPassword && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-2"
+                >
+                  <div className="flex items-center justify-between ml-1">
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Password</label>
+                    {isLogin && <button type="button" onClick={() => setIsForgotPassword(true)} className="text-xs text-cyan-400 hover:underline">Forgot?</button>}
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                    <input 
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      required={!isForgotPassword}
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="••••••••"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-12 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all font-sans"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none transition-colors p-1"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <button 
               type="submit"
               disabled={loading}
               className={`w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-semibold text-white transition-all duration-300 relative overflow-hidden group ${
-                isLogin ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)]' : 'bg-gradient-to-r from-purple-600 to-purple-500 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]'
+                isLogin || isForgotPassword ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)]' : 'bg-gradient-to-r from-purple-600 to-purple-500 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]'
               }`}
             >
               <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
@@ -179,21 +216,50 @@ const Auth = () => {
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  {isLogin ? 'Sign In' : 'Create Account'}
+                  {isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Create Account'}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
           </form>
 
+          {!isForgotPassword && (
+            <>
+              <div className="mt-6 flex items-center gap-4">
+                <div className="flex-1 h-[1px] bg-white/10"></div>
+                <span className="text-xs text-gray-500 uppercase tracking-widest">or</span>
+                <div className="flex-1 h-[1px] bg-white/10"></div>
+              </div>
+
+              <div className="mt-6 flex justify-center w-full">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => {
+                    console.error('Google Login Failed');
+                  }}
+                  theme="filled_black"
+                  shape="pill"
+                  text={isLogin ? "signin_with" : "signup_with"}
+                  size="large"
+                  width="300"
+                />
+              </div>
+            </>
+          )}
+
           <p className="mt-8 text-center text-sm text-gray-500">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
-            <button 
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-cyan-400 hover:underline font-medium"
-            >
-              {isLogin ? 'Create one now' : 'Login here'}
-            </button>
+            {isForgotPassword ? (
+              <button 
+                onClick={() => setIsForgotPassword(false)}
+                className="text-cyan-400 hover:underline font-medium"
+              >
+                Back to Login
+              </button>
+            ) : isLogin ? (
+              <>Don't have an account? <button onClick={() => setIsLogin(!isLogin)} className="text-cyan-400 hover:underline font-medium">Create one now</button></>
+            ) : (
+              <>Already have an account? <button onClick={() => setIsLogin(!isLogin)} className="text-cyan-400 hover:underline font-medium">Login here</button></>
+            )}
           </p>
         </div>
 

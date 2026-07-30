@@ -5,9 +5,12 @@ import {
   BrainCircuit, ArrowRight, Play, ChevronRight,
   Video, Database, Users, Zap, Shield, Activity,
   BarChart2, Clock, CheckCircle, Circle, Sparkles,
-  Code2, GitBranch, Lock, Star, Globe, Layers
+  Code2, GitBranch, Lock, Star, Globe, Layers,
+  Sun, Moon
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useTheme } from '../context/ThemeContext';
+
 
 /* ─────────────────── UTILITY / DESIGN TOKENS ─────────────────── */
 // Reusable button variants (shadcn/ui pattern)
@@ -251,10 +254,63 @@ const GradientText = ({ children, className, colors = ['#22d3ee', '#818cf8', '#a
   </span>
 );
 
+/* ─────────────────── THEME TOGGLE BUTTON ─────────────────── */
+const ThemeToggle = () => {
+  const { isDark, toggleTheme } = useTheme();
+
+  return (
+    <motion.button
+      id="theme-toggle-btn"
+      onClick={toggleTheme}
+      aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      className={cn(
+        "relative flex items-center w-14 h-7 rounded-full p-0.5 transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/50",
+        isDark
+          ? "bg-slate-800 border border-white/10 shadow-[0_0_12px_rgba(34,211,238,0.15)]"
+          : "bg-gradient-to-r from-amber-200 to-sky-200 border border-amber-300/50 shadow-[0_2px_12px_rgba(251,191,36,0.3)]"
+      )}
+      whileTap={{ scale: 0.92 }}
+    >
+      {/* Track icons */}
+      <span className={cn("absolute left-1.5 transition-opacity duration-300", isDark ? "opacity-100" : "opacity-0")}>
+        <Moon size={12} className="text-cyan-300" />
+      </span>
+      <span className={cn("absolute right-1.5 transition-opacity duration-300", isDark ? "opacity-0" : "opacity-100")}>
+        <Sun size={12} className="text-amber-600" />
+      </span>
+
+      {/* Sliding knob */}
+      <motion.div
+        className={cn(
+          "w-6 h-6 rounded-full flex items-center justify-center shadow-md z-10",
+          isDark
+            ? "bg-gradient-to-br from-slate-600 to-slate-700"
+            : "bg-gradient-to-br from-amber-400 to-orange-400"
+        )}
+        animate={{ x: isDark ? 0 : 28 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+      >
+        <AnimatePresence mode="wait">
+          {isDark ? (
+            <motion.div key="moon" initial={{ rotate: -30, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 30, opacity: 0 }} transition={{ duration: 0.2 }}>
+              <Moon size={12} className="text-cyan-300" />
+            </motion.div>
+          ) : (
+            <motion.div key="sun" initial={{ rotate: 30, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -30, opacity: 0 }} transition={{ duration: 0.2 }}>
+              <Sun size={12} className="text-white" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.button>
+  );
+};
+
 /* ─────────────────── NAVBAR ─────────────────── */
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -272,7 +328,9 @@ const Navbar = () => {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-6 md:px-10",
         scrolled
-          ? "py-3 bg-[#030810]/80 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/30"
+          ? isDark
+            ? "py-3 bg-[#030810]/85 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/30"
+            : "py-3 bg-white/85 backdrop-blur-xl border-b border-slate-200/80 shadow-lg shadow-slate-200/20"
           : "py-5 bg-transparent"
       )}
     >
@@ -281,8 +339,8 @@ const Navbar = () => {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-[0_0_16px_rgba(34,211,238,0.4)] group-hover:shadow-[0_0_24px_rgba(34,211,238,0.6)] transition-shadow duration-300">
             <BrainCircuit size={18} className="text-white" />
           </div>
-          <span className="text-lg font-extrabold tracking-tight text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
-            Shadow<span className="text-cyan-400">Learn</span>
+          <span className={cn("text-lg font-extrabold tracking-tight transition-colors duration-500", isDark ? "text-white" : "text-slate-800")} style={{ fontFamily: 'Outfit, sans-serif' }}>
+            Shadow<span className="text-cyan-500">Learn</span>
           </span>
         </Link>
 
@@ -291,7 +349,12 @@ const Navbar = () => {
             <a
               key={link}
               href={`#${link.toLowerCase()}`}
-              className="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all duration-200"
+              className={cn(
+                "px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                isDark
+                  ? "text-gray-400 hover:text-white hover:bg-white/5"
+                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+              )}
             >
               {link}
             </a>
@@ -299,6 +362,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link
             to="/dashboard"
             className={buttonVariants.primary + " text-xs py-2.5 px-5 shadow-[0_0_16px_rgba(34,211,238,0.3)]"}
@@ -967,33 +1031,21 @@ const Footer = () => (
 
 /* ─────────────────── MAIN HOME COMPONENT ─────────────────── */
 const Home = () => {
+  const { isDark } = useTheme();
+
   return (
-    <div className="min-h-screen text-white overflow-x-hidden" style={{ fontFamily: 'Inter, sans-serif', background: '#030810' }}>
+    <motion.div
+      className="min-h-screen overflow-x-hidden"
+      animate={{
+        backgroundColor: isDark ? '#030810' : '#f0f4ff',
+        color: isDark ? '#ffffff' : '#1e293b',
+      }}
+      transition={{ duration: 0.4 }}
+      style={{ fontFamily: 'Inter, sans-serif' }}
+    >
       {/* Google Fonts */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,900&display=swap" />
-
-      {/* Global styles */}
-      <style>{`
-        html { scroll-behavior: smooth; }
-
-        @keyframes shimmer {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-
-        * { box-sizing: border-box; }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #030810; }
-        ::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.2); border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(34,211,238,0.4); }
-
-        /* Selection */
-        ::selection { background: rgba(34,211,238,0.25); color: #fff; }
-      `}</style>
 
       <Navbar />
       <main>
@@ -1005,7 +1057,7 @@ const Home = () => {
         <CTASection />
       </main>
       <Footer />
-    </div>
+    </motion.div>
   );
 };
 

@@ -3,11 +3,11 @@ const Solution = require('../models/Solution');
 // @desc    Get all solutions
 // @route   GET /api/solutions
 // @access  Public (or Private based on requirement, let's say Private)
-const getSolutions = async (req, res) => {
+const getSolutions = async (req, res) => { 
     try {
         const solutions = await Solution.find()
             .populate('expert', 'name')
-            .populate('workflowContext', 'title')
+            .populate('workflowContext', 'title')         
             .sort({ createdAt: -1 });
 
         res.status(200).json(solutions);

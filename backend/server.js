@@ -1,15 +1,17 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+const config = require('./config/config');
+const connectDB = require('./config/db');
+
+// Connect to Database
+connectDB();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    origin: [config.CORS_ORIGIN, 'http://localhost:5173', 'http://localhost:5174'],
     credentials: true
 }));
 app.use(express.json());
@@ -45,13 +47,8 @@ app.get('/api/health', (req, res) => {
 const { errorHandler } = require('./middleware/errorMiddleware');
 app.use(errorHandler);
 
-mongoose.connect(process.env.MONGODB_URI, {
-    serverSelectionTimeoutMS: 50000, 
-    socketTimeoutMS: 45000
-})
-.then(() => console.log('MongoDB connected successfully'))
-.catch((err) => console.error('MongoDB connection error:', err));
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(config.PORT, () => {
+    console.log(`Server is running on port ${config.PORT}`);
 });
+
+

@@ -15,7 +15,13 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: false // Optional for users logging in via Google
+    },
+    googleId: {
+        type: String,
+        required: false,
+        unique: true,
+        sparse: true // Allows multiple null values for normal registered users
     },
     role: {
         type: String,
@@ -38,6 +44,12 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 100
     },
+    profilePicture: {
+        type: String,
+        default: ''
+    },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
     createdAt: {
         type: Date,
         default: Date.now

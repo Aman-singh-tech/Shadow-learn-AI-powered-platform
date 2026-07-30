@@ -14,14 +14,17 @@ import {
   Cpu,
   Bookmark,
   Sparkles,
-  Loader2
+  Loader2,
+  ExternalLink,
+  Award,
+  ShieldCheck
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 
-const SolutionItem = ({ solution, index }) => {
+const SolutionItem = ({ solution, index, onSelect }) => {
   const authorName = solution.expert?.name || 'Expert';
   const upvotes = solution.upvotes || 0;
 
@@ -30,6 +33,7 @@ const SolutionItem = ({ solution, index }) => {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
+      onClick={() => onSelect(solution)}
     >
       <Card className="hover:border-amber-500/50 transition-all cursor-pointer group bg-[#0a0f1a]/60 border-white/5 backdrop-blur-xl relative overflow-hidden p-8">
         {/* Background Accent */}
@@ -85,6 +89,7 @@ const Solutions = () => {
   const [solutions, setSolutions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSolution, setSelectedSolution] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -145,7 +150,7 @@ const Solutions = () => {
       if (res.ok) {
         toast.success('Solution permanently anchored in repository');
         setIsModalOpen(false);
-        fetchSolutions(); // Refresh the list to get the new author and upvotes
+        fetchSolutions(); 
       } else {
         toast.error('Repository synchronization failed');
       }
@@ -226,7 +231,7 @@ const Solutions = () => {
         ) : (
           <>
             {filteredSolutions.map((s, idx) => (
-              <SolutionItem key={s._id || s.id} solution={s} index={idx} />
+              <SolutionItem key={s._id || s.id} solution={s} index={idx} onSelect={setSelectedSolution} />
             ))}
             {filteredSolutions.length === 0 && (
               <div className="text-center py-40 bg-[#0a0f1a]/40 rounded-[3.5rem] border border-dashed border-white/5">
@@ -238,6 +243,94 @@ const Solutions = () => {
           </>
         )}
       </div>
+
+      {/* Modal - Solution Details */}
+      <AnimatePresence>
+        {selectedSolution && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedSolution(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-[#0a0f1a] rounded-[2.5rem] shadow-2xl w-full max-w-3xl border border-white/10 overflow-hidden"
+            >
+              <div className="p-10 pb-8 bg-gradient-to-br from-amber-600/20 to-transparent border-b border-white/5 flex justify-between items-start">
+                <div className="flex gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/20 shadow-lg shadow-amber-500/5">
+                     <Zap size={30} />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter mb-2">{selectedSolution.title || selectedSolution.problem}</h2>
+                    <p className="text-amber-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                       <Award size={14} className="text-amber-500" /> Verified Fix Protocol • Contributed by {selectedSolution.expert?.name || 'Expert Contributor'}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedSolution(null)}
+                  className="p-2 hover:bg-white/5 rounded-full text-gray-500 hover:text-white transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="p-10 space-y-10 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-amber-500/20 scrollbar-track-transparent">
+                <div className="space-y-4">
+                   <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-6 bg-amber-500 rounded-full" />
+                      <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Problem Specification</h4>
+                   </div>
+                  <p className="text-white text-xl font-bold leading-relaxed italic pr-4">"{selectedSolution.title || selectedSolution.problem}"</p>
+                </div>
+
+                <div className="space-y-6">
+                   <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-6 bg-cyan-500 rounded-full" />
+                      <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Solution Protocol (Anchored Logic)</h4>
+                   </div>
+                  <div className="bg-black/40 p-8 rounded-[2rem] border border-white/5 relative group">
+                     <div className="absolute top-4 right-4 text-gray-800 opacity-20 group-hover:opacity-40 transition-opacity">
+                        <Cpu size={40} />
+                     </div>
+                     <p className="text-gray-300 leading-relaxed text-lg whitespace-pre-wrap">{selectedSolution.content || selectedSolution.solution}</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3 pt-4 border-t border-white/5">
+                  <span className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] w-full mb-2">Neural Connectors:</span>
+                  {selectedSolution.tags?.map(tag => (
+                    <span key={tag} className="px-5 py-2 bg-amber-500/5 text-amber-400/70 border border-amber-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                       #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-10 flex gap-4 border-t border-white/5 bg-white/2">
+                <Button className="flex-1 h-16 rounded-2xl bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 uppercase font-black tracking-[0.3em] flex items-center justify-center gap-3 border-white/5">
+                   <ThumbsUp size={18} /> Endorse Solution
+                </Button>
+                <Button 
+                  onClick={() => {
+                    toast.success("Protocol exported to clipboard");
+                    setSelectedSolution(null);
+                  }}
+                  className="flex-1 h-16 rounded-2xl bg-gradient-to-r from-amber-600 to-amber-500 text-white font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-amber-600/20 border-none flex items-center justify-center gap-3"
+                >
+                  <ExternalLink size={18} /> Mirror Protocol
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Modal - Deploy Solution Node */}
       <AnimatePresence>
@@ -297,7 +390,7 @@ const Solutions = () => {
                     />
                   </div>
                 </div>
-                <Button type="submit" variant="primary" className="w-full py-6 text-sm font-black uppercase tracking-[0.3em] shadow-2xl shadow-amber-500/20 rounded-[1.5rem] border-none bg-gradient-to-r from-amber-600 to-amber-500 mt-4 h-16 flex justify-center items-center">
+                <Button type="submit" variant="primary" className="w-full py-6 text-sm font-black uppercase tracking-[0.2em] shadow-2xl shadow-amber-500/20 rounded-[1.5rem] border-none bg-gradient-to-r from-amber-600 to-amber-500 mt-4 h-16 flex justify-center items-center">
                    {loading ? <Loader2 size={24} className="animate-spin" /> : 'Synchronize with Hub'}
                 </Button>
               </form>
@@ -310,3 +403,4 @@ const Solutions = () => {
 };
 
 export default Solutions;
+

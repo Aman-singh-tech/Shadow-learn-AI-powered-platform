@@ -36,7 +36,7 @@ import {
   Area
 } from 'recharts';
 import { motion } from 'framer-motion';
-
+import toast from 'react-hot-toast';
 const data = [
   { name: 'Jan', documented: 400, undocumented: 2400 },
   { name: 'Feb', documented: 600, undocumented: 2200 },
@@ -109,6 +109,34 @@ const Insights = () => {
     stats: { undocumentedKnowledge: '0%', productivityLoss: '0%', timeSaved: '0h', learningVelocity: '1.0x' },
     chartData: [],
     pieData: [{ name: 'Documented', value: 0 }, { name: 'Undocumented', value: 100 }]
+  };
+
+  const handleExportReport = () => {
+    toast.promise(
+      new Promise((resolve) => setTimeout(resolve, 2000)),
+      {
+        loading: 'Compiling neural intelligence report...',
+        success: 'Report compiled! Starting download.',
+        error: 'Failed to compile report.',
+      }
+    ).then(() => {
+      // Simulate CSV file download based on current visible data
+      const csvContent = "data:text/csv;charset=utf-8," 
+        + "Metric,Value\n"
+        + "Documented Knowledge," + pieData[0].value + "%\n"
+        + "Undocumented Knowledge," + stats.undocumentedKnowledge + "\n"
+        + "Productivity Risk," + stats.productivityLoss + "\n"
+        + "Estimated Time Saved," + stats.timeSaved + "\n"
+        + "Learning Velocity," + stats.learningVelocity + "\n";
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `ShadowLearn_Intelligence_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
   };
 
   return (
@@ -213,7 +241,7 @@ const Insights = () => {
                 </h2>
                 <p className="text-gray-400 text-sm">ShadowLearn has aggregated all verified workflows. The organization's collective intelligence index is synchronized.</p>
             </div>
-            <Button className="bg-gradient-to-r from-cyan-600 to-cyan-500 text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] h-16 px-10 text-lg rounded-2xl relative z-10 uppercase font-black tracking-widest group border-none">
+            <Button onClick={handleExportReport} className="bg-gradient-to-r from-cyan-600 to-cyan-500 text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] h-16 px-10 text-lg rounded-2xl relative z-10 uppercase font-black tracking-widest group border-none">
                Export Global Report <ArrowRight className="inline ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
          </div>
