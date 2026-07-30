@@ -19,32 +19,12 @@ router.get('/experts', protect, async (req, res) => {
 });
 
 const multer = require('multer');
-const path = require('path');
+const { profilePictureStorage } = require('../config/cloudinary');
 
-// Configure Multer for local storage
-const storage = multer.diskStorage({
-    destination(req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename(req, file, cb) {
-        cb(null, `${req.user._id}-${Date.now()}${path.extname(file.originalname)}`);
-    }
-});
-
+// Use Cloudinary storage — profile pictures stored permanently in cloud
 const upload = multer({
-    storage,
+    storage: profilePictureStorage,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-    fileFilter(req, file, cb) {
-        const filetypes = /jpeg|jpg|png|webp|gif/;
-        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = filetypes.test(file.mimetype);
-
-        if (extname && mimetype) {
-            return cb(null, true);
-        } else {
-            cb(new Error('Only image files are allowed!'));
-        }
-    }
 });
 
 // @desc    Upload user profile picture
@@ -56,8 +36,8 @@ router.post('/profile-picture', protect, upload.single('image'), async (req, res
             return res.status(400).json({ error: 'No image uploaded' });
         }
 
-        // The file is saved to 'uploads/'. We just need to save the relative path to db
-        const imagePath = `/uploads/${req.file.filename}`;
+        // req.file.path contains the permanent Cloudinary HTTPS URL
+        const imagePath = req.file.path;
 
         const user = await User.findById(req.user._id);
         if (!user) {

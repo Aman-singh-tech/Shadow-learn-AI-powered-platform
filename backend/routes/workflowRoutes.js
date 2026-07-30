@@ -8,16 +8,10 @@ const {
 } = require('../controllers/workflowController');
 const { protect } = require('../middleware/authMiddleware');
 const multer = require('multer');
+const { workflowVideoStorage } = require('../config/cloudinary');
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    }
-});
-const upload = multer({ storage: storage });
+// Use Cloudinary storage — files are uploaded to cloud, not local disk
+const upload = multer({ storage: workflowVideoStorage });
 
 // All workflow routes should be protected
 router.route('/')

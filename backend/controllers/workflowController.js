@@ -33,7 +33,7 @@ const createWorkflow = async (req, res) => {
             return res.status(400).json({ error: 'Please add a title to the workflow' });
         }
 
-        const videoUrl = req.file ? `/uploads/${req.file.filename}` : '';
+        const videoUrl = req.file ? req.file.path : '';
 
         const workflow = await Workflow.create({
             title,
