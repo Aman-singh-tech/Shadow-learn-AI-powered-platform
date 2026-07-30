@@ -154,9 +154,13 @@ const forgotPassword = async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000;
         await user.save();
 
-        // Create transporter
+        // Create transporter — using port 587 (STARTTLS) instead of 465 (SSL)
+        // Port 465 is blocked on Render free tier; 587 works fine
         const transporter = nodemailer.createTransport({
-            service: 'gmail', // You can change this based on provider
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,       // false = STARTTLS (upgrades connection after connect)
+            requireTLS: true,    // force TLS upgrade, reject if server doesn't support it
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
