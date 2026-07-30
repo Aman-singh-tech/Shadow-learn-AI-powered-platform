@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { OAuth2Client } = require('google-auth-library');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const User = require('../models/User');
 const config = require('../config/config');
 
@@ -154,22 +154,15 @@ const forgotPassword = async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000;
         await user.save();
 
-        // Build nodemailer SMTP transporter
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: parseInt(process.env.SMTP_PORT, 10),
-            secure: false, // false = STARTTLS on port 587
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
-            },
-        });
+        // NOTE: Render free tier blocks outbound SMTP (ports 465/587) — ENETUNREACH error.
+        // Resend uses HTTPS (port 443) which Render allows on all plans.
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
         const frontendUrl = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'http://localhost:5173';
         const resetUrl = `${frontendUrl}/resetpassword/${resetToken}`;
 
-        await transporter.sendMail({
-            from: process.env.EMAIL_FROM,
+        const { error: sendError } = await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'ShadowLearn <onboarding@resend.dev>',
             to: user.email,
             subject: 'Password Reset - ShadowLearn',
             html: `
@@ -187,6 +180,11 @@ const forgotPassword = async (req, res) => {
                 </div>
             `
         });
+
+        if (sendError) {
+            console.error('Resend error:', sendError);
+            return res.status(500).json({ error: 'Failed to send reset email' });
+        }
 
         res.status(200).json({ success: true, message: 'Password reset link sent to email' });
 
