@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { OAuth2Client } = require('google-auth-library');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const User = require('../models/User');
 const config = require('../config/config');
 
@@ -154,34 +154,32 @@ const forgotPassword = async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000;
         await user.save();
 
-        // Create transporter — using port 587 (STARTTLS) instead of 465 (SSL)
-        // Port 465 is blocked on Render free tier; 587 works fine
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: false,       // false = STARTTLS (upgrades connection after connect)
-            requireTLS: true,    // force TLS upgrade, reject if server doesn't support it
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
+        // Send email via Resend HTTP API (works on Render free tier)
+        // Nodemailer SMTP (port 465/587) is blocked by Render — Resend uses HTTPS
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
-        // Set up email data
         const frontendUrl = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'http://localhost:5173';
         const resetUrl = `${frontendUrl}/resetpassword/${resetToken}`;
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
+
+        await resend.emails.send({
+            from: 'ShadowLearn <onboarding@resend.dev>',
             to: user.email,
             subject: 'Password Reset - ShadowLearn',
-            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
-                  `Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n` +
-                  `${resetUrl}\n\n` +
-                  `If you did not request this, please ignore this email and your password will remain unchanged.\n`
-        };
-
-        // Send email
-        await transporter.sendMail(mailOptions);
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #6366f1;">ShadowLearn Password Reset</h2>
+                    <p>You requested a password reset for your ShadowLearn account.</p>
+                    <p>Click the button below to reset your password. This link expires in <strong>1 hour</strong>.</p>
+                    <a href="${resetUrl}" 
+                       style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; 
+                              border-radius: 8px; text-decoration: none; margin: 16px 0;">
+                        Reset Password
+                    </a>
+                    <p style="color: #888; font-size: 13px;">If you did not request this, ignore this email — your password will remain unchanged.</p>
+                    <p style="color: #888; font-size: 12px;">Or copy this link: ${resetUrl}</p>
+                </div>
+            `
+        });
 
         res.status(200).json({ success: true, message: 'Password reset link sent to email' });
 
