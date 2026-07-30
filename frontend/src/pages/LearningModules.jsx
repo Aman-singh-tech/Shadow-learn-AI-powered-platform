@@ -288,7 +288,7 @@ const LearningModules = () => {
                        controls 
                        autoPlay 
                        className="w-full h-full shadow-2xl shadow-indigo-500/10"
-                       src={`${API_BASE_URL}${playingWorkflow.videoUrl}`}
+                       src={playingWorkflow.videoUrl?.startsWith('http') ? playingWorkflow.videoUrl : `${API_BASE_URL}${playingWorkflow.videoUrl}`}
                      />
                    ) : (
                      <div className="text-gray-500 flex flex-col items-center gap-6">

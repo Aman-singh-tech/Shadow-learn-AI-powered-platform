@@ -133,7 +133,7 @@ const Sidebar = () => {
             <div className="flex items-center gap-3 overflow-hidden">
               {user.profilePicture ? (
                 <img 
-                  src={`${API_BASE_URL}${user.profilePicture}`} 
+                  src={user.profilePicture?.startsWith('http') ? user.profilePicture : `${API_BASE_URL}${user.profilePicture}`} 
                   alt={user.name} 
                   className="w-10 h-10 rounded-full object-cover border border-blue-500/30"
                 />
