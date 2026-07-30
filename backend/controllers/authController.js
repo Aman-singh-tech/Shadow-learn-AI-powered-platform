@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { OAuth2Client } = require('google-auth-library');
 const crypto = require('crypto');
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 const User = require('../models/User');
 const config = require('../config/config');
 
@@ -154,15 +154,22 @@ const forgotPassword = async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000;
         await user.save();
 
-        // Send email via Resend HTTP API (works on Render free tier)
-        // Nodemailer SMTP (port 465/587) is blocked by Render — Resend uses HTTPS
-        const resend = new Resend(process.env.RESEND_API_KEY);
+        // Build nodemailer SMTP transporter
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT, 10),
+            secure: false, // false = STARTTLS on port 587
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS,
+            },
+        });
 
         const frontendUrl = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'http://localhost:5173';
         const resetUrl = `${frontendUrl}/resetpassword/${resetToken}`;
 
-        await resend.emails.send({
-            from: 'ShadowLearn <onboarding@resend.dev>',
+        await transporter.sendMail({
+            from: process.env.EMAIL_FROM,
             to: user.email,
             subject: 'Password Reset - ShadowLearn',
             html: `
