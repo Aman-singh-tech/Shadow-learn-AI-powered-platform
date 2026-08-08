@@ -2,9 +2,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { OAuth2Client } = require('google-auth-library');
 const crypto = require('crypto');
-const { Resend } = require('resend');
 const User = require('../models/User');
 const config = require('../config/config');
+const { sendPasswordResetEmail } = require('../config/mailer');
 
 const client = new OAuth2Client(config.GOOGLE_CLIENT_ID);
 
@@ -143,54 +143,30 @@ const forgotPassword = async (req, res) => {
         const { email } = req.body;
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ error: 'User not found with this email' });
+            // Return generic message to prevent email enumeration
+            return res.status(200).json({ success: true, message: 'If that email exists, a reset link has been sent.' });
         }
 
-        // Generate token
-        const resetToken = crypto.randomBytes(20).toString('hex');
-        
+        // Generate a secure random token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+
         // Set token and expiration (1 hour)
         user.resetPasswordToken = resetToken;
         user.resetPasswordExpires = Date.now() + 3600000;
         await user.save();
 
-        // NOTE: Render free tier blocks outbound SMTP (ports 465/587) — ENETUNREACH error.
-        // Resend uses HTTPS (port 443) which Render allows on all plans.
-        const resend = new Resend(process.env.RESEND_API_KEY);
-
-        const frontendUrl = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'http://localhost:5173';
+        // Build reset URL pointing to production frontend
+        const frontendUrl = (process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'http://localhost:5173').replace(/\/$/, '');
         const resetUrl = `${frontendUrl}/resetpassword/${resetToken}`;
 
-        const { error: sendError } = await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'ShadowLearn <onboarding@resend.dev>',
-            to: user.email,
-            subject: 'Password Reset - ShadowLearn',
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #6366f1;">ShadowLearn Password Reset</h2>
-                    <p>You requested a password reset for your ShadowLearn account.</p>
-                    <p>Click the button below to reset your password. This link expires in <strong>1 hour</strong>.</p>
-                    <a href="${resetUrl}" 
-                       style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; 
-                              border-radius: 8px; text-decoration: none; margin: 16px 0;">
-                        Reset Password
-                    </a>
-                    <p style="color: #888; font-size: 13px;">If you did not request this, ignore this email — your password will remain unchanged.</p>
-                    <p style="color: #888; font-size: 12px;">Or copy this link: ${resetUrl}</p>
-                </div>
-            `
-        });
+        // Send email (tries Gmail SMTP, falls back to Resend)
+        await sendPasswordResetEmail(user.email, resetUrl);
 
-        if (sendError) {
-            console.error('Resend error:', sendError);
-            return res.status(500).json({ error: 'Failed to send reset email' });
-        }
-
-        res.status(200).json({ success: true, message: 'Password reset link sent to email' });
+        res.status(200).json({ success: true, message: 'Password reset link sent to your email' });
 
     } catch (error) {
         console.error('Error in forgotPassword:', error);
-        res.status(500).json({ error: 'Error sending email' });
+        res.status(500).json({ error: 'Failed to send reset email. Please try again later.' });
     }
 };
 
