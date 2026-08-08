@@ -34,6 +34,7 @@ const createWorkflow = async (req, res) => {
         }
 
         const videoUrl = req.file ? req.file.path : '';
+        console.log(`📹 Video uploaded — Cloudinary URL: ${videoUrl || 'none'}`);
 
         const workflow = await Workflow.create({
             title,

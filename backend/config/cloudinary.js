@@ -18,12 +18,16 @@ const profilePictureStorage = new CloudinaryStorage({
 });
 
 // Storage for workflow videos
+// resource_type: 'video' ensures Cloudinary returns a /video/upload/... URL
+// (not /image/upload/...) so the browser <video> tag can actually play it.
 const workflowVideoStorage = new CloudinaryStorage({
     cloudinary,
     params: {
         folder: 'shadowlearn/workflow-videos',
         resource_type: 'video',
-        allowed_formats: ['mp4', 'webm', 'mov', 'avi'],
+        allowed_formats: ['mp4', 'webm', 'mov'],
+        format: 'mp4',           // normalize everything to mp4 for max browser compat
+        transformation: [{ quality: 'auto' }], // reduce file size without quality loss
     },
 });
 
